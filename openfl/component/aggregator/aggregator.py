@@ -70,6 +70,7 @@ class Aggregator:
         )
         self._end_of_round_check_done = [False] * rounds_to_train
         self.stragglers = []
+        self.available_collaborators = []
 
         self.rounds_to_train = rounds_to_train
 
@@ -278,7 +279,11 @@ class Aggregator:
             f'Aggregator GetTasks function reached from collaborator {collaborator_name}...'
         )
 
-        # first, if it is time to quit, inform the collaborator
+        # mark this collaborator as "available"
+        if collaborator_name not in self.available_collaborators:
+            self.available_collaborators.append[collaborator_name]
+
+        # if it is time to quit, inform the collaborator
         if self._time_to_quit():
             self.logger.info(f'Sending signal to collaborator {collaborator_name} to shutdown...')
             self.quit_job_sent_to.append(collaborator_name)
@@ -834,6 +839,10 @@ class Aggregator:
                     'metric_value': agg_results.item(),
                     'round': round_number}
 
+                if agg_results is None:
+                    self.logger.warning(
+                        f'Aggregated metric {agg_tensor_name} could not be collected '
+                        f'for round {self.round_number}. Skipping reporting for this round')
                 if agg_function:
                     self.logger.metric(f'Round {round_number}, aggregator: {task_name} '
                                        f'{agg_function} {agg_tensor_name}:\t{agg_results:f}')
@@ -883,8 +892,18 @@ class Aggregator:
         # Once all of the task results have been processed
         self._end_of_round_check_done[self.round_number] = True
         self.round_number += 1
+
+        # inform the task assigner of end of round and pass relevant state information
+        # TODO: this should really be an event mechanism rather than hardcoded callbacks
+        self.assigner.end_of_round(available_collaborators=self.available_collaborators,
+                                   next_round=self.round_number)
+
+        # TODO: this should really be a clean "round state reset" function
+        # such a state object would also be a clean object to pass to an event handler
         # resetting stragglers for task for a new round
         self.stragglers = []
+        # resetting available collaborators for a new round
+        self.available_collaborators = []
 
         # Save the latest model
         self.logger.info(f'Saving round {self.round_number} model...')

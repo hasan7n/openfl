@@ -70,3 +70,7 @@ class Assigner:
         if 'aggregation_type' not in self.tasks[task_name]:
             return None
         return self.tasks[task_name]['aggregation_type']
+
+    # TODO: There should really be an end-of-round callback that takes a state object
+    def end_of_round(self, **kwargs):
+        pass
