@@ -37,8 +37,8 @@ class DynamicRandomGroupedAssigner(Assigner):
 
     def __init__(self, task_groups, **kwargs):
         """Initialize."""
-        super().__init__(**kwargs)
         self.task_groups = task_groups
+        super().__init__(**kwargs)
         # assign to all collaborators for the first round
         self.collaborators_to_assign = self.authorized_cols
         self.assign_tasks(from_round=0)
@@ -94,6 +94,11 @@ class DynamicRandomGroupedAssigner(Assigner):
                 for i in range(from_round, self.round):
                     self.collaborator_tasks[col][i] = []
     
+        # Also, reset the list of collaborators for each task
+        for task in self.all_tasks_in_groups:
+            for round_num in range(from_round, self.rounds):
+                self.collaborators_for_task[task][round_num] = []
+
         # TODO: once we enable adding collaborators, we need to add the check below: 
         # for collaborators that do not yet exist in self.collaborator_tasks, add empty task lists
 

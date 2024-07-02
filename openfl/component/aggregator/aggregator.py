@@ -281,7 +281,7 @@ class Aggregator:
 
         # mark this collaborator as "available"
         if collaborator_name not in self.available_collaborators:
-            self.available_collaborators.append[collaborator_name]
+            self.available_collaborators.append(collaborator_name)
 
         # if it is time to quit, inform the collaborator
         if self._time_to_quit():
