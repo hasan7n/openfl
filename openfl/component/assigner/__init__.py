@@ -6,10 +6,12 @@
 from .assigner import Assigner
 from .random_grouped_assigner import RandomGroupedAssigner
 from .static_grouped_assigner import StaticGroupedAssigner
+from .dynamic_random_grouped_assigner import DynamicRandomGroupedAssigner
 
 
 __all__ = [
     'Assigner',
     'RandomGroupedAssigner',
     'StaticGroupedAssigner',
+    'DynamicRandomGroupedAssigner'
 ]
