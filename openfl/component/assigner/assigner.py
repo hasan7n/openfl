@@ -70,3 +70,13 @@ class Assigner:
         if 'aggregation_type' not in self.tasks[task_name]:
             return None
         return self.tasks[task_name]['aggregation_type']
+
+    def add_collaborator(self, col_label, col_cn):
+        # TODO: modify this after merging #944
+        self.authorized_cols.append(col_cn)
+        self.define_task_assignments()
+
+    def remove_collaborator(self, col_label, col_cn):
+        # TODO: modify this after merging #944
+        self.authorized_cols.remove(col_cn)
+        self.define_task_assignments()

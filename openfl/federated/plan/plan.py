@@ -224,6 +224,7 @@ class Plan:
         self.collaborator_ = None  # collaborator object
         self.aggregator_ = None  # aggregator object
         self.assigner_ = None  # assigner object
+        self.admin_ = None  # admin object
 
         self.loader_ = None  # data loader object
         self.runner_ = None  # task runner object
@@ -351,6 +352,38 @@ class Plan:
             self.aggregator_ = Plan.build(**defaults, initial_tensor_dict=tensor_dict)
 
         return self.aggregator_
+
+    def get_admin(self, admin_name, root_certificate=None, private_key=None, certificate=None, client=None):
+        """Get admin."""
+        defaults = self.config.get(
+            'admin',
+            {
+                TEMPLATE: 'openfl.component.Admin',
+                SETTINGS: {}
+            }
+        )
+
+        defaults[SETTINGS]['admin_name'] = admin_name
+        defaults[SETTINGS]['aggregator_uuid'] = self.aggregator_uuid
+        defaults[SETTINGS]['federation_uuid'] = self.federation_uuid
+
+        if client is not None:
+            defaults[SETTINGS]['client'] = client
+        else:
+            defaults[SETTINGS]['client'] = self.get_client(
+                admin_name,
+                self.aggregator_uuid,
+                self.federation_uuid,
+                root_certificate,
+                private_key,
+                certificate,
+                for_admin=True
+            )
+
+        if self.admin_ is None:
+            self.admin_ = Plan.build(**defaults)
+
+        return self.admin_
 
     def get_tensor_pipe(self):
         """Get data tensor pipeline."""
@@ -512,8 +545,8 @@ class Plan:
         return self.collaborator_
 
     def get_client(self, collaborator_name, aggregator_uuid, federation_uuid,
-                   root_certificate=None, private_key=None, certificate=None):
-        """Get gRPC client for the specified collaborator."""
+                   root_certificate=None, private_key=None, certificate=None, for_admin=False):
+        """Get gRPC client for the specified collaborator or admin."""
         common_name = collaborator_name
         if not root_certificate or not private_key or not certificate:
             root_certificate = 'cert/cert_chain.crt'
@@ -530,6 +563,7 @@ class Plan:
 
         client_args['aggregator_uuid'] = aggregator_uuid
         client_args['federation_uuid'] = federation_uuid
+        client_args['for_admin'] = for_admin
 
         if self.client_ is None:
             self.client_ = AggregatorGRPCClient(**client_args)

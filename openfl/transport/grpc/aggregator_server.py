@@ -89,6 +89,38 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
                     f'Invalid collaborator. CN: |{common_name}| '
                     f'collaborator_common_name: |{collaborator_common_name}|')
 
+    def validate_admin(self, request, context, endpoint_name):
+        """
+        Validate the admin request.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+            endpoint_name: The endpoint name the admin is calling
+
+        Raises:
+            ValueError: If the admin certificate is not valid
+                or the endpoint is not allowed then raises error.
+
+        """
+        if self.tls:
+            common_name = context.auth_context()[
+                'x509_common_name'][0].decode('utf-8')
+            admin_common_name = request.header.sender
+            if not self.aggregator.valid_admin_cn_and_id(
+                    common_name, admin_common_name):
+                # Random delay in authentication failures
+                sleep(5 * random())  # nosec
+                context.abort(
+                    StatusCode.UNAUTHENTICATED,
+                    f'Invalid admin. CN: |{common_name}| '
+                    f'admin_common_name: |{admin_common_name}|')
+
+        if not self.aggregator.valid_admin_endpoint(endpoint_name):
+            context.abort(
+                    StatusCode.UNAVAILABLE,
+                    f'This endpoint is not permitted for this federation. Endpoint: |{endpoint_name}| ')
+
     def get_header(self, collaborator_name):
         """
         Compose and return MessageHeader.
@@ -128,6 +160,24 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             self.aggregator.single_col_cert_common_name,
             self.logger
         )
+
+    def check_admin_request(self, request):
+        """
+        Validate request header matches expected values.
+
+        Args:
+            request : protobuf
+                Request sent from an admin that requires validation
+        """
+        # TODO improve this check. the sender name could be spoofed
+        check_is_in(request.header.sender, self.aggregator.admins, self.logger)
+
+        # check that the message is for me
+        check_equal(request.header.receiver, self.aggregator.uuid, self.logger)
+
+        # check that the message is for my federation
+        check_equal(
+            request.header.federation_uuid, self.aggregator.federation_uuid, self.logger)
 
     def GetTasks(self, request, context):  # NOQA:N802
         """
@@ -229,6 +279,95 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         # turn data stream into local model update
         return aggregator_pb2.SendLocalTaskResultsResponse(
             header=self.get_header(collaborator_name)
+        )
+
+    def AddCollaborator(self, request, context):  # NOQA:N802
+        """
+        Request to add a collaborator.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "AddCollaborator")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        col_label = request.collaborator_label
+        col_cn = request.collaborator_cn
+        self.aggregator.add_collaborator(col_label, col_cn)
+        return aggregator_pb2.AddCollaboratorResponse(
+            header=self.get_header(admin_name)
+        )
+
+    def RemoveCollaborator(self, request, context):  # NOQA:N802
+        """
+        Request to remove a collaborator.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "RemoveCollaborator")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        col_label = request.collaborator_label
+        col_cn = request.collaborator_cn
+        self.aggregator.remove_collaborator(col_label, col_cn)
+        return aggregator_pb2.RemoveCollaboratorResponse(
+            header=self.get_header(admin_name)
+        )
+
+    def _prepare_experiment_status_pb(self, status_dict):
+        if not status_dict:
+            return
+        round_num = status_dict["round"]
+        collaborators = status_dict["collaborators"]
+        start_times = status_dict["start_times"]
+        end_times = status_dict["end_times"]
+        stragglers = status_dict["stragglers"]
+        round_start = status_dict["round_start"]
+
+        collaborators_progress = []
+        for collaborator_name in collaborators:
+            col_start_time = start_times.get(collaborator_name)
+            col_end_times = end_times.get(collaborator_name, {})
+            col_task_endtimes = []
+            for task_name, end_time in col_end_times.items():
+                task_endtime_pb = aggregator_pb2.TaskEndTime(task_name=task_name, end_time=end_time)
+                col_task_endtimes.append(task_endtime_pb)
+            collaborator_progress_pb = aggregator_pb2.CollaboratorProgress(
+                col_name=collaborator_name,
+                start_time=col_start_time,
+                tasks_end_time=col_task_endtimes
+            )
+            collaborators_progress.append(collaborator_progress_pb)
+
+        return aggregator_pb2.ExperimentStatus(
+            round=round_num,
+            round_start=round_start,
+            collaborators_progress=collaborators_progress,
+            stragglers=stragglers
+        )
+
+    def GetExperimentStatus(self, request, context):  # NOQA:N802
+        """
+        Get experiment status from the aggregator.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "GetExperimentStatus")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        current_round, previous_round = self.aggregator.get_experiment_status()
+        return aggregator_pb2.GetExperimentStatusResponse(
+            header=self.get_header(admin_name),
+            current_round=self._prepare_experiment_status_pb(current_round),
+            previous_round=self._prepare_experiment_status_pb(previous_round)
         )
 
     def get_server(self):
