@@ -104,7 +104,7 @@ WORKDIR /openfl
 COPY . .
 
 # Install OpenFL
-RUN pip install --no-cache-dir install --upgrade pip setuptools
+RUN pip install --no-cache-dir --upgrade pip setuptools
 RUN pip install --no-cache-dir .
 
 WORKDIR /thirdparty

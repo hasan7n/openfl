@@ -283,6 +283,13 @@ class Aggregator:
         if collaborator_name not in self.available_collaborators:
             self.available_collaborators.append(collaborator_name)
 
+        # MICAH TODO: check for the end of the round
+        # self._end_of_round_check() # MICAH NOTE: this causes: 
+            # File "/usr/local/lib/python3.10/dist-packages/openfl/component/aggregator/aggregator.py", line 838, in
+            # _compute_validation_related_task_metrics
+            # 'metric_value': float(agg_results),
+            # TypeError: float() argument must be a string or a real number, not 'tuple'
+
         # if it is time to quit, inform the collaborator
         if self._time_to_quit():
             self.logger.info(f'Sending signal to collaborator {collaborator_name} to shutdown...')
@@ -882,6 +889,7 @@ class Aggregator:
         # inform the task assigner of end of round and pass relevant state information
         # TODO: this should really be an event mechanism rather than hardcoded callbacks
         self.assigner.end_of_round(available_collaborators=self.available_collaborators,
+                                   stragglers=self.stragglers,
                                    next_round=self.round_number)
 
         # TODO: this should really be a clean "round state reset" function
@@ -922,10 +930,14 @@ class Aggregator:
 
         if straggler_check:
             for c in all_collaborators:
-                if c not in collaborators_done:
+                # don't add twice if already a straggler from a previous task
+                if c not in collaborators_done and c not in self.stragglers:
                     self.stragglers.append(c)
-            self.logger.info(f'\tEnding task {task_name} early due to straggler cutoff policy')
-            self.logger.warning(f'\tIdentified stragglers: {self.stragglers}')
+            # The straggler handler can trigger even if the round completed normally in some cases.
+            # For these cases, the cause of round end should not be considered due to straggler handling
+            if len(all_collaborators) != len(collaborators_done):
+                self.logger.info(f'\tEnding task {task_name} early due to straggler cutoff policy')
+                self.logger.warning(f'\tIdentified stragglers: {self.stragglers}')
 
         # all are done or straggler policy calls for early round end.
         return straggler_check or len(all_collaborators) == len(collaborators_done)

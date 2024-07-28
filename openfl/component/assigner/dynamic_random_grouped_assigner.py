@@ -91,7 +91,7 @@ class DynamicRandomGroupedAssigner(Assigner):
         # for collaborators that have dropped from the list, set task lists to empty
         for col in self.authorized_cols:
             if col not in self.collaborators_to_assign:
-                for i in range(from_round, self.round):
+                for i in range(from_round, self.rounds):
                     self.collaborator_tasks[col][i] = []
     
         # Also, reset the list of collaborators for each task
