@@ -158,8 +158,8 @@ message ExperimentStatus {
   repeated string stragglers = 4;
   repeated string to_add_next_round = 5;
   repeated string to_remove_next_round = 6;
-  available_collaborators = 7;
-  assigned_collaborators = 8;
+  repeated string available_collaborators = 7;
+  repeated string assigned_collaborators = 8;
 }
 
 message GetExperimentStatusResponse {

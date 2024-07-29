@@ -89,6 +89,7 @@ setup(
     packages=[
         'openfl',
         'openfl.component',
+        'openfl.component.admin',
         'openfl.interface.aggregation_functions',
         'openfl.interface.aggregation_functions.core',
         'openfl.interface.aggregation_functions.experimental',
