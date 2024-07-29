@@ -19,6 +19,7 @@ service Aggregator {
   rpc AddCollaborator(AddCollaboratorRequest) returns (AddCollaboratorResponse) {}
   rpc RemoveCollaborator(RemoveCollaboratorRequest) returns (RemoveCollaboratorResponse) {}
   rpc GetExperimentStatus(GetExperimentStatusRequest) returns (GetExperimentStatusResponse) {}
+  rpc SetStragglerCuttoffTime(SetStragglerCuttoffTimeRequest) returns (SetStragglerCuttoffTimeResponse) {}
 }
 
 message MessageHeader {
@@ -140,6 +141,11 @@ message GetExperimentStatusRequest {
   MessageHeader header = 1;
 }
 
+message SetStragglerCuttoffTimeRequest {
+  MessageHeader header = 1;
+  float timeout_in_seconds = 2;
+}
+
 message TaskEndTime {
   string task_name = 1;
   float end_time = 2;
@@ -166,4 +172,8 @@ message GetExperimentStatusResponse {
   MessageHeader header = 1;
   ExperimentStatus current_round = 2;
   optional ExperimentStatus previous_round = 3;
+}
+
+message SetStragglerCuttoffTimeResponse {
+  MessageHeader header = 1;
 }

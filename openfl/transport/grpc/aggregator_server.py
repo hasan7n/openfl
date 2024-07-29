@@ -378,6 +378,23 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             previous_round=self._prepare_experiment_status_pb(previous_round)
         )
 
+    def SetStragglerCuttoffTime(self, request, context):  # NOQA:N802
+        """
+        Set a new straggler handler cutoff time, if it exists.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "SetStragglerCuttoffTime")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        self.aggregator.set_straggler_cutoff_time(request.timeout_in_seconds)
+        return aggregator_pb2.SetStragglerCuttoffTimeResponse(
+            header=self.get_header(admin_name)
+        )
+
     def get_server(self):
         """Return gRPC server."""
         self.server = server(ThreadPoolExecutor(max_workers=cpu_count()),

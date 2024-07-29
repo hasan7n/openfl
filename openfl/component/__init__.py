@@ -7,6 +7,7 @@ from .aggregator import Aggregator
 from .assigner import Assigner
 from .assigner import RandomGroupedAssigner
 from .assigner import StaticGroupedAssigner
+from .assigner import DynamicRandomGroupedAssigner
 from .collaborator import Collaborator
 from .straggler_handling_functions import StragglerHandlingPolicy
 from .straggler_handling_functions import CutoffTimeBasedStragglerHandling
@@ -17,6 +18,7 @@ __all__ = [
     'Assigner',
     'RandomGroupedAssigner',
     'StaticGroupedAssigner',
+    'DynamicRandomGroupedAssigner',
     'Aggregator',
     'Collaborator',
     'StragglerHandlingPolicy',

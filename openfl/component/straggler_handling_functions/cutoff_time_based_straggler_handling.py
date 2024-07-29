@@ -12,6 +12,8 @@ from openfl.component.straggler_handling_functions import StragglerHandlingPolic
 
 
 class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
+    MINIMUM_CUTOFF_SECONDS=20 # TODO: This helps for when we decouple minimum from timeout?? Maybe
+
     def __init__(
         self,
         round_start_time=None,
@@ -23,7 +25,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
             raise ValueError(f"minimum_reporting cannot be {minimum_reporting}")
 
         self.round_start_time = round_start_time
-        self.straggler_cutoff_time = straggler_cutoff_time
+        self._set_cutoff_time(straggler_cutoff_time)
         self.minimum_reporting = minimum_reporting
         self.logger = getLogger(__name__)
 
@@ -57,6 +59,31 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
         )
         self.timer.daemon = True
         self.timer.start()
+        # save the callback in case we need to directly call it due to setting new cutoff value
+        self.callback = callback
+
+
+    def _set_cutoff_time(self, straggler_cutoff_time):
+        self.straggler_cutoff_time = max(straggler_cutoff_time, CutoffTimeBasedStragglerHandling.MINIMUM_CUTOFF_SECONDS)
+        
+
+    def set_straggler_cutoff_time(self, straggler_cutoff_time):
+        # cancel current timer
+        self.reset_policy_for_round()
+        
+        # set the new value
+        self._set_cutoff_time(straggler_cutoff_time)
+
+        # if new time has expired, run callback
+        if self.__straggler_time_expired():
+            self.callback()
+        # otherwise, set the new timer
+        else:
+            self.timer = threading.Timer(
+                self.straggler_cutoff_time - (time.time() - self.round_start_time), self.callback,
+            )
+            self.timer.daemon = True
+            self.timer.start()
 
 
     def reset_policy_for_round(self) -> None:

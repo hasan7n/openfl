@@ -147,3 +147,40 @@ def remove_collaborator(plan, admin_name, col_label, col_cn):
 
     plan = Plan.parse(plan_config_path=Path(plan).absolute())
     plan.get_admin(admin_name).remove_collaborator(col_label, col_cn)
+
+
+@admin.command(name="set_straggler_cuttoff_time")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+@option(
+    "--timeout_in_seconds",
+    required=True,
+    type=int,
+    help="The number of seconds to set the new straggler cutoff timeout to.",
+)
+def set_straggler_cuttoff_time(plan, admin_name, timeout_in_seconds):
+    """Set the cutoff timeout in the straggler handler to a new value (if supported)."""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    plan.get_admin(admin_name).set_straggler_cuttoff_time(timeout_in_seconds)

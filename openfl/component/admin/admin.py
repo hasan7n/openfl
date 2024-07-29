@@ -43,3 +43,10 @@ class Admin:
         self.logger.info("Querying the experiment status...")
         status_dict = self.client.admin_get_experiment_status(self.admin_name)
         return status_dict
+
+    def set_straggler_cuttoff_time(self, timeout_in_seconds):
+        """Send a request to the aggregator to set a new straggler timeout."""
+        self.logger.info("Setting new straggler cutoff...")
+        self.client.admin_set_straggler_cuttoff_time(
+            self.admin_name, timeout_in_seconds
+        )

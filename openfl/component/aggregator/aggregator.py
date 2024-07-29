@@ -407,6 +407,10 @@ class Aggregator:
             self.straggler_handling_policy.start_policy(
                 callback=self._straggler_cutoff_time_elapsed
             )
+            cutoff = None
+            if hasattr(self.straggler_handling_policy, 'straggler_cutoff_time'):
+                cutoff = self.straggler_handling_policy.straggler_cutoff_time
+            self.logger.info(f'Started straggler handling policy with cutoff time {cutoff}...')
 
         start_time = time.time()
         if self.first_col_start is None:
@@ -434,10 +438,10 @@ class Aggregator:
         """
         self.logger.info(
             f"Round number: {self.round_number} cutoff timer elapsed after "
-            f"{self.straggler_handling_policy.straggler_cutoff_time}s. "
-            f"Applying {self.straggler_handling_policy.__class__.__name__} policy."
-            f"Collaborators done: {self.collaborators_done}."
-            f"Collaborators assigned: {self.assigner.get_assigned_collaborators()}."
+            f"{self.straggler_handling_policy.straggler_cutoff_time}s.\n"
+            f"Applying {self.straggler_handling_policy.__class__.__name__} policy.\n"
+            f"Collaborators done: {self.collaborators_done}.\n"
+            f"Collaborators assigned in round being cut off: {self.assigner.get_assigned_collaborators()}\n."
         )
 
         # Check if minimum collaborators reported results
@@ -1071,6 +1075,19 @@ class Aggregator:
 
         self.collaborators_to_remove.append((collaborator_label, collaborator_cn))
 
+    def set_straggler_cutoff_time(self, straggler_cutoff_time):
+        if self.straggler_handling_policy is None:
+            self.logger.info(f'Aggregator has no straggler_handling_policy. Skipping set_straggler_cutoff_time')
+            return
+
+        if not hasattr(self.straggler_handling_policy, 'set_straggler_cutoff_time'):
+            self.logger.info(f'Aggregator straggler_handling_policy has no method for set_straggler_cutoff_time. Skipping call')
+            return
+
+        self.straggler_handling_policy.set_straggler_cutoff_time(straggler_cutoff_time)
+        self.logger.info(f"Set straggler_cutoff_time to {self.straggler_handling_policy.straggler_cutoff_time}")
+
+
     def _end_of_round_check(self):
         """
         Check if the round complete.
@@ -1118,6 +1135,12 @@ class Aggregator:
         for col_label, col_cn in self.collaborators_to_remove:
             if col_cn in self.available_collaborators:
                 self.available_collaborators.remove(col_cn)
+
+        self.logger.info(f'Calling assigner for end of round.')
+        self.logger.info(f'available_collaborators: {self.available_collaborators}')
+        self.logger.info(f'stragglers: {self.stragglers}')
+
+        self.logger.info(f'My assigner is a {type(self.assigner)}')
 
         # inform the task assigner of end of round and pass relevant state information
         # TODO: this should really be an event mechanism rather than hardcoded callbacks

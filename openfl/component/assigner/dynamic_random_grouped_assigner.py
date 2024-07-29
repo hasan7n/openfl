@@ -7,6 +7,7 @@
 import numpy as np
 
 from .assigner import Assigner
+from logging import getLogger
 
 
 class DynamicRandomGroupedAssigner(Assigner):
@@ -40,8 +41,9 @@ class DynamicRandomGroupedAssigner(Assigner):
         self.task_groups = task_groups
         super().__init__(**kwargs)
         # assign to all collaborators for the first round
-        self.collaborators_to_assign = self.authorized_cols
+        self.collaborators_to_assign = self.authorized_cols.copy()
         self.assign_tasks(from_round=0)
+        self.logger = getLogger(__name__)
 
         # we now no longer care about authorized cols
 
@@ -50,6 +52,12 @@ class DynamicRandomGroupedAssigner(Assigner):
                      stragglers,
                      next_round,
                      **kwargs):
+
+        self.logger.info(f'DynamicRandomGroupedAssigner end of round called with:\n'
+                         f'available_collaborators: {available_collaborators}\n'
+                         f'stragglers: {stragglers}\n'
+                         f'next_round: {next_round}'
+                         )
         # determine next round's collaborators to assign
         # we take the available collaborators and remove any stragglers
         # straggler removal prevents assigning to collaborators that were slow in the previous round

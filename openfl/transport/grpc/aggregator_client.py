@@ -392,3 +392,12 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
         status_dict = convert_experiment_status_proto_to_dict(response)
         return status_dict
+
+    @_handle_grpc_error
+    @_atomic_connection  # MS-TODO: remove this wrapper?
+    def admin_set_straggler_cuttoff_time(self, admin_name, timeout_in_seconds):
+        """SetStragglerCuttoffTime RPC."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.SetStragglerCuttoffTimeRequest(header=self.header, timeout_in_seconds=timeout_in_seconds)
+        response = self.stub.SetStragglerCuttoffTime(request)
+        self.validate_response(response, admin_name)
