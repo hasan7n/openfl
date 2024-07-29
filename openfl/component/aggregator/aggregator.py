@@ -1107,11 +1107,25 @@ class Aggregator:
         self._end_of_round_check_done[self.round_number] = True
         self.round_number += 1
 
+        # add new collaborators to available list as needed
+        # MICAH TODO: should this be label or CN? Need to check with Hasan
+        for col_label, col_cn in self.collaborators_to_add:
+            if col_cn not in self.available_collaborators:
+                self.available_collaborators.append(col_cn)
+
+        # remove new collaborators from available list as needed
+        # MICAH TODO: should this be label or CN? Need to check with Hasan
+        for col_label, col_cn in self.collaborators_to_remove:
+            if col_cn in self.available_collaborators:
+                self.available_collaborators.remove(col_cn)
+
         # inform the task assigner of end of round and pass relevant state information
         # TODO: this should really be an event mechanism rather than hardcoded callbacks
         self.assigner.end_of_round(available_collaborators=self.available_collaborators,
                                    stragglers=self.stragglers,
                                    next_round=self.round_number)
+    
+        self.logger.info(f'Collaborators given assignments in the next round: {self.assigner.get_assigned_collaborators()}')
 
         # TODO: this should really be a clean "round state reset" function
         # such a state object would also be a clean object to pass to an event handler
@@ -1138,6 +1152,15 @@ class Aggregator:
         # Reset straggler handling policy for the next round.
         self.straggler_handling_policy.reset_policy_for_round()
 
+        collaborators_changed = False
+        if (len(self.collaborators_to_add) + len(self.collaborators_to_remove)) > 0:
+            collaborators_changed = True
+            self.logger.info(f'Authorized collaborators for the round that ended: {self.authorized_cols}')
+        else:
+            self.logger.info(f'No change to authorized collaborators. These lists should be empty:')
+        self.logger.info(f'Collaborators to add: {self.collaborators_to_add}')
+        self.logger.info(f'Collaborators to remove: {self.collaborators_to_remove}')
+
         # Adding any new collaborators
         for col_label, col_cn in self.collaborators_to_add:
             self.authorized_cols.append(col_cn)  # TODO: modify this after merging #944
@@ -1149,6 +1172,10 @@ class Aggregator:
             self.authorized_cols.remove(col_cn)  # TODO: modify this after merging #944
             self.assigner.remove_collaborator(col_label, col_cn)
         self.collaborators_to_remove.clear()
+
+        if collaborators_changed:
+            self.logger.info(f'Authorized collaborators for the next round: {self.authorized_cols}')
+
 
     # TODO: To be removed after review
     def _is_task_done(self, task_name):

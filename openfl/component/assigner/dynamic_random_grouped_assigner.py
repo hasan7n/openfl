@@ -43,6 +43,8 @@ class DynamicRandomGroupedAssigner(Assigner):
         self.collaborators_to_assign = self.authorized_cols
         self.assign_tasks(from_round=0)
 
+        # we now no longer care about authorized cols
+
     def end_of_round(self,
                      available_collaborators,
                      stragglers,
@@ -89,7 +91,7 @@ class DynamicRandomGroupedAssigner(Assigner):
         """set future assignments based on the currently authorized collaborators"""
 
         # for collaborators that have dropped from the list, set task lists to empty
-        for col in self.authorized_cols:
+        for col in self.collaborator_tasks.keys():
             if col not in self.collaborators_to_assign:
                 for i in range(from_round, self.rounds):
                     self.collaborator_tasks[col][i] = []
@@ -100,7 +102,7 @@ class DynamicRandomGroupedAssigner(Assigner):
                 self.collaborators_for_task[task][round_num] = []
 
         # for collaborators that do not yet exist in self.collaborator_tasks, add empty task lists
-        for col in self.authorized_cols:
+        for col in self.collaborators_to_assign:
             if col not in self.collaborator_tasks:
                 self.collaborator_tasks[col] = {i: [] for i in range(self.rounds)}
 
@@ -141,9 +143,7 @@ class DynamicRandomGroupedAssigner(Assigner):
         return self.collaborators_to_assign
 
     def add_collaborator(self, col_label, col_cn):
-        # TODO: modify this after merging #944
-        self.authorized_cols.append(col_cn)
+        pass
 
     def remove_collaborator(self, col_label, col_cn):
-        # TODO: modify this after merging #944
-        self.authorized_cols.remove(col_cn)
+        pass
