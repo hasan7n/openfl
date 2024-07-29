@@ -74,3 +74,6 @@ class Assigner:
     # TODO: There should really be an end-of-round callback that takes a state object
     def end_of_round(self, **kwargs):
         pass
+
+    def get_assigned_collaborators(self, **kwargs):
+        return self.authorized_cols

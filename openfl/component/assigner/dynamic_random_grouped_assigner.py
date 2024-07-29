@@ -135,3 +135,6 @@ class DynamicRandomGroupedAssigner(Assigner):
     def get_collaborators_for_task(self, task_name, round_number):
         """Get collaborators for the task specified."""
         return self.collaborators_for_task[task_name][round_number]
+
+    def get_assigned_collaborators(self, **kwargs):
+        return self.collaborators_to_assign

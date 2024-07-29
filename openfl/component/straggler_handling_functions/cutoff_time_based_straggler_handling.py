@@ -25,20 +25,13 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
         self.round_start_time = round_start_time
         self.straggler_cutoff_time = straggler_cutoff_time
         self.minimum_reporting = minimum_reporting
-        self.__is_policy_applied_for_round = False
         self.logger = getLogger(__name__)
 
         if self.straggler_cutoff_time == np.inf:
-            self.logger.warning(
+            self.logger.info(
                 "CutoffTimeBasedStragglerHandling is disabled as straggler_cutoff_time "
                 "is set to np.inf."
             )
-
-    def reset_policy_for_round(self) -> None:
-        """
-        Reset policy variable for the next round.
-        """
-        self.__is_policy_applied_for_round = False
 
     def start_policy(self, callback: Callable) -> None:
         """
@@ -55,18 +48,32 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
         # If straggler_cutoff_time is set to infinite or
         # if the timer already expired for the current round do not start
         # the timer again until next round.
-        if self.straggler_cutoff_time == np.inf or self.__is_policy_applied_for_round:
+        if self.straggler_cutoff_time == np.inf:
             return
+        self.reset_policy_for_round()
         self.round_start_time = time.time()
-        if hasattr(self, "timer"):
-            self.timer.cancel()
-            delattr(self, "timer")
         self.timer = threading.Timer(
             self.straggler_cutoff_time, callback,
         )
         self.timer.daemon = True
         self.timer.start()
 
+
+    def reset_policy_for_round(self) -> None:
+        """
+        Reset policy variable for the next round.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        if hasattr(self, "timer"):
+            self.timer.cancel()
+            delattr(self, "timer")
+
+    # MICAH TODO: This interface needs to be made more general
     def straggler_cutoff_check(
         self, num_collaborators_done: int, num_all_collaborators: int,
     ) -> bool:
@@ -83,38 +90,21 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
         Returns:
             bool
         """
+        # Check if time has expired
         if not self.__straggler_time_expired():
             return False
-        # Check if time has expired and policy is not applied
-        elif self.__straggler_time_expired() and not self.__is_policy_applied_for_round:
-            # Stop timer from restarting for current round and
-            # if set to True wait for ALL collaborators instead of minimum_reporting
-            self.__is_policy_applied_for_round = True
+        else:
+            self.logger.info(
+                f"{num_collaborators_done} collaborators reported results within "
+                "cutoff time."
+            )
             # Check if minimum_reporting collaborators have reported results
             if self.__minimum_collaborators_reported(num_collaborators_done):
-                self.logger.info(
-                    f"{num_collaborators_done} collaborators reported results within "
-                    "cutoff time. Applying cutoff policy and proceeding with end of round."
-                )
+                self.logger.info(f"Minimum of {self.minimum_reporting} met. Round should end.")
                 return True
-            self.logger.info(
-                "Disregarding straggler handling policy and waiting for ALL "
-                f"{num_all_collaborators} collaborator(s) to report results."
-            )
-            return False
-        # If straggler_cutoff_time is set to infinite,
-        # OR
-        # If minimum_reporting collaborators have not reported results within cutoff
-        # time,
-        # then disregard the policy and wait for ALL collaborators to report
-        # results.
-        elif (
-            self.straggler_cutoff_time == np.inf
-            or (self.__straggler_time_expired() and self.__is_policy_applied_for_round)
-        ):
-            return num_all_collaborators == num_collaborators_done
-        # Something has gone, unhandled scenario, raising error.
-        raise ValueError("Unhandled scenario")
+            else:
+                self.logger.info(f"Minimum of {self.minimum_reporting} NOT met. Round should NOT end.")
+                return False
 
     def __straggler_time_expired(self) -> bool:
         """
