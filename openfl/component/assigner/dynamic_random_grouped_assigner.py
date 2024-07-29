@@ -43,7 +43,7 @@ class DynamicRandomGroupedAssigner(Assigner):
         self.collaborators_to_assign = self.authorized_cols
         self.assign_tasks(from_round=0)
 
-    def end_of_round(self, 
+    def end_of_round(self,
                      available_collaborators,
                      stragglers,
                      next_round,
@@ -75,7 +75,7 @@ class DynamicRandomGroupedAssigner(Assigner):
             for group in self.task_groups
             for task in group['tasks']
         })
-        
+
         # Initialize the map of collaborators for a given task on a given round
         for task in self.all_tasks_in_groups:
             self.collaborators_for_task[task] = {
@@ -93,15 +93,16 @@ class DynamicRandomGroupedAssigner(Assigner):
             if col not in self.collaborators_to_assign:
                 for i in range(from_round, self.rounds):
                     self.collaborator_tasks[col][i] = []
-    
+
         # Also, reset the list of collaborators for each task
         for task in self.all_tasks_in_groups:
             for round_num in range(from_round, self.rounds):
                 self.collaborators_for_task[task][round_num] = []
 
-        # TODO: once we enable adding collaborators, we need to add the check below: 
         # for collaborators that do not yet exist in self.collaborator_tasks, add empty task lists
-
+        for col in self.authorized_cols:
+            if col not in self.collaborator_tasks:
+                self.collaborator_tasks[col] = {i: [] for i in range(self.rounds)}
 
         col_list_size = len(self.collaborators_to_assign)
         for round_num in range(from_round, self.rounds):
@@ -138,3 +139,11 @@ class DynamicRandomGroupedAssigner(Assigner):
 
     def get_assigned_collaborators(self, **kwargs):
         return self.collaborators_to_assign
+
+    def add_collaborator(self, col_label, col_cn):
+        # TODO: modify this after merging #944
+        self.authorized_cols.append(col_cn)
+
+    def remove_collaborator(self, col_label, col_cn):
+        # TODO: modify this after merging #944
+        self.authorized_cols.remove(col_cn)

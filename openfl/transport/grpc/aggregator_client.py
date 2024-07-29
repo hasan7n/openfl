@@ -14,7 +14,7 @@ from openfl.pipelines import NoCompressionPipeline
 from openfl.protocols import aggregator_pb2
 from openfl.protocols import aggregator_pb2_grpc
 from openfl.protocols import utils
-from openfl.utilities import check_equal
+from openfl.utilities import check_equal, convert_experiment_status_proto_to_dict
 
 from .grpc_channel_options import channel_options
 
@@ -88,6 +88,18 @@ def _atomic_connection(func):
     return wrapper
 
 
+def _handle_grpc_error(func):
+    def wrapper(self, *args, **kwargs):
+        try:
+            response = func(self, *args, **kwargs)
+        except grpc.RpcError as error:
+            print(f"gRPC Error: {error.code()}. Details: {error.details()}")
+            exit(1)
+        return response
+
+    return wrapper
+
+
 def _resend_data_on_reconnection(func):
     def wrapper(self, *args, **kwargs):
         while True:
@@ -121,6 +133,7 @@ class AggregatorGRPCClient:
                  aggregator_uuid=None,
                  federation_uuid=None,
                  single_col_cert_common_name=None,
+                 for_admin=False,
                  **kwargs):
         """Initialize."""
         self.uri = f'{agg_addr}:{agg_port}'
@@ -150,19 +163,23 @@ class AggregatorGRPCClient:
         self.federation_uuid = federation_uuid
         self.single_col_cert_common_name = single_col_cert_common_name
 
-        # Adding an interceptor for RPC Errors
-        self.interceptors = (
-            RetryOnRpcErrorClientInterceptor(
-                sleeping_policy=ConstantBackoff(
-                    logger=self.logger,
-                    reconnect_interval=int(kwargs.get('client_reconnect_interval', 1)),
-                    uri=self.uri),
-                status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
-            ),
-        )
-        self.stub = aggregator_pb2_grpc.AggregatorStub(
-            grpc.intercept_channel(self.channel, *self.interceptors)
-        )
+        if for_admin:
+            self.interceptors = ()
+            self.stub = aggregator_pb2_grpc.AggregatorStub(self.channel)
+        else:
+            # Adding an interceptor for RPC Errors
+            self.interceptors = (
+                RetryOnRpcErrorClientInterceptor(
+                    sleeping_policy=ConstantBackoff(
+                        logger=self.logger,
+                        reconnect_interval=int(kwargs.get('client_reconnect_interval', 1)),
+                        uri=self.uri),
+                    status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
+                ),
+            )
+            self.stub = aggregator_pb2_grpc.AggregatorStub(
+                grpc.intercept_channel(self.channel, *self.interceptors)
+            )
 
     def create_insecure_channel(self, uri):
         """
@@ -338,3 +355,40 @@ class AggregatorGRPCClient:
             NoCompressionPipeline(),
         )
         return tensor_dict
+
+    @_handle_grpc_error
+    @_atomic_connection  # HK-TODO: remove this wrapper?
+    def admin_add_collaborator(self, admin_name, col_label, col_cn):
+        """Add collaborator RPC."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.AddCollaboratorRequest(
+            header=self.header,
+            collaborator_label=col_label,
+            collaborator_cn=col_cn
+        )
+        response = self.stub.AddCollaborator(request)
+        self.validate_response(response, admin_name)
+
+    @_handle_grpc_error
+    @_atomic_connection  # HK-TODO: remove this wrapper?
+    def admin_remove_collaborator(self, admin_name, col_label, col_cn):
+        """Remove collaborator RPC."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.RemoveCollaboratorRequest(
+            header=self.header,
+            collaborator_label=col_label,
+            collaborator_cn=col_cn
+        )
+        response = self.stub.RemoveCollaborator(request)
+        self.validate_response(response, admin_name)
+
+    @_handle_grpc_error
+    @_atomic_connection  # HK-TODO: remove this wrapper?
+    def admin_get_experiment_status(self, admin_name):
+        """Get experiment status RPC."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.GetExperimentStatusRequest(header=self.header)
+        response = self.stub.GetExperimentStatus(request)
+        self.validate_response(response, admin_name)
+        status_dict = convert_experiment_status_proto_to_dict(response)
+        return status_dict

@@ -77,3 +77,13 @@ class Assigner:
 
     def get_assigned_collaborators(self, **kwargs):
         return self.authorized_cols
+
+    def add_collaborator(self, col_label, col_cn):
+        # TODO: modify this after merging #944
+        self.authorized_cols.append(col_cn)
+        self.define_task_assignments()
+
+    def remove_collaborator(self, col_label, col_cn):
+        # TODO: modify this after merging #944
+        self.authorized_cols.remove(col_cn)
+        self.define_task_assignments()

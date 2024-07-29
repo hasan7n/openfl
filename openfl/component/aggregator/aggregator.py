@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Aggregator module."""
+from copy import deepcopy
 import time
 import queue
 from logging import getLogger
@@ -26,6 +27,8 @@ class Aggregator:
         aggregator_uuid (str): Aggregation ID.
         federation_uuid (str): Federation ID.
         authorized_cols (list of str): The list of IDs of enrolled collaborators.
+        admins* (list of str): The list of common users with admin privileges.
+        allowed_admin_endpoints* (list of str): The list of allowed admin endpoints (grpc service names)
         init_state_path* (str): The location of the initial weight file.
         last_state_path* (str): The file location to store the latest weight.
         best_state_path* (str): The file location to store the weight of the best model.
@@ -40,6 +43,9 @@ class Aggregator:
                  aggregator_uuid,
                  federation_uuid,
                  authorized_cols,
+
+                 admins,
+                 allowed_admin_endpoints,
 
                  init_state_path,
                  best_state_path,
@@ -77,7 +83,7 @@ class Aggregator:
         self.uuid = aggregator_uuid
         self.federation_uuid = federation_uuid
         self.assigner = assigner
-        self.quit_job_sent_to = []
+        self.quit_job_sent_to = []  # TODO: check how will this behave in the scenario of adding/removing cols
 
         self.tensor_db = TensorDB()
         # FIXME: I think next line generates an error on the second round
@@ -132,6 +138,20 @@ class Aggregator:
         # maintain a list of collaborators that have completed task and
         # reported results in a given round
         self.collaborators_done = []
+
+        # this is for monitoring
+        self.collaborator_start_time = {}  # {col_name: time relative to round start}
+        self.collaborator_end_time = {}  # {col_name: {task_name: time relative to round start}}
+        self.previous_round_status = {}  # see self._get_round_status
+        self.first_col_start = None
+
+        # for admin authorization
+        self.admins = admins
+        self.allowed_admin_endpoints = allowed_admin_endpoints
+
+        # new/dropped collaborators
+        self.collaborators_to_add = []
+        self.collaborators_to_remove = []
 
     def _load_initial_tensors(self):
         """
@@ -239,6 +259,37 @@ class Aggregator:
         else:
             return (cert_common_name == self.single_col_cert_common_name
                     and collaborator_common_name in self.authorized_cols)
+
+    def valid_admin_cn_and_id(self, cert_common_name,
+                              admin_common_name):
+        """
+        Determine if the admin certificate and ID are valid for this federation.
+
+        Args:
+            cert_common_name: Common name for security certificate
+            admin_common_name: Common name for admin
+
+        Returns:
+            bool: True means the admin common name matches the name in
+                  the security certificate.
+
+        """
+        return (cert_common_name == admin_common_name
+                and admin_common_name in self.admins)
+
+    def valid_admin_endpoint(self, endpoint_id):
+        """
+        Determine if endpoint being called by the admin is permitted in this federation.
+
+        Args:
+            endpoint_id: ID of the endpoint. It corresponds to the grpc service name
+                         defined in the protobuf file.
+
+        Returns:
+            bool: True means the endpoint is allowed.
+
+        """
+        return endpoint_id in self.allowed_admin_endpoints
 
     def all_quit_jobs_sent(self):
         """Assert all quit jobs are sent to collaborators."""
@@ -356,6 +407,20 @@ class Aggregator:
             self.straggler_handling_policy.start_policy(
                 callback=self._straggler_cutoff_time_elapsed
             )
+
+        start_time = time.time()
+        if self.first_col_start is None:
+            # first_col_start used to differ from straggler_handling_policy.round_start_time
+            # the former corresponds to the time the first collaborator starts,
+            # while the latter used to correspond to the time the last collaborator starts.
+            # anyway we choose to track them separately.
+            self.first_col_start = start_time
+
+        if collaborator_name not in self.collaborator_start_time:
+            # NOTE: It seems that a collaborator will recieve tasks only once per round
+            # even if there are multiple tasks (is this true?), but anyway I am recording
+            # the start time only one time per round
+            self.collaborator_start_time[collaborator_name] = start_time - self.first_col_start
 
         return tasks, self.round_number, sleep_time, time_to_quit
 
@@ -610,6 +675,10 @@ class Aggregator:
             task_results.append(tensor_key)
 
         self.collaborator_tasks_results[task_key] = task_results
+        if collaborator_name not in self.collaborator_end_time:
+            self.collaborator_end_time[collaborator_name] = {}
+        self.collaborator_end_time[collaborator_name][task_name] = (
+            time.time() - self.first_col_start)
 
         self._is_collaborator_done(collaborator_name)
 
@@ -903,7 +972,7 @@ class Aggregator:
                 }
                 if agg_results is None:
                     self.logger.warning(
-                        f'Aggregated metric {agg_tensor_name} could not be collected '
+                        f'Aggregated metric {agg_tensor_key} could not be collected '
                         f'for round {self.round_number}. Skipping reporting for this round')
                 self.metric_queue.put(metrics)
                 self.logger.metric("%s", metrics)
@@ -918,6 +987,89 @@ class Aggregator:
                         self._save_model(round_number, self.best_state_path)
             if 'trained' in tags:
                 self._prepare_trained(tensor_name, origin, round_number, report, agg_results)
+
+    def _get_round_status(self):
+        status = {
+            "round": self.round_number,
+            "round_start": self.first_col_start,
+            "collaborators": self.authorized_cols,
+            "start_times": self.collaborator_start_time,
+            "end_times": self.collaborator_end_time,
+            "stragglers": self.stragglers,
+            "to_add_next_round": self.collaborators_to_add,
+            "to_remove_next_round": self.collaborators_to_remove,
+            "available_collaborators": self.available_collaborators,
+            "assigned_collaborators": self.assigner.get_assigned_collaborators() or [],
+        }
+        return status
+
+    def get_experiment_status(self):
+        """
+        RPC called by admin.
+
+        Returns experiment status for the current and previous rounds.
+        """
+        current_round_status = self._get_round_status()
+        previous_round_status = self.previous_round_status
+        return current_round_status, previous_round_status
+
+    def add_collaborator(self, collaborator_label, collaborator_cn):
+        """
+        RPC called by admin.
+
+        Adds a collaborator to the federation. This function will save
+        the collaborator in a temporary list. Actual addition of the collaborator
+        will happen at the end of the current round.
+
+        Args:
+            collaborator_label: Collaborator common name  # TODO: fix after merging #944
+            collaborator_cn: Collaborator common name
+        Returns:
+             None
+        """
+        # check if this collaborator was requested to be removed
+        if (collaborator_label, collaborator_cn) in self.collaborators_to_remove:
+            self.collaborators_to_remove.remove(collaborator_cn)
+            return
+
+        # check if this collaborator was already requested to be added
+        if (collaborator_label, collaborator_cn) in self.collaborators_to_add:
+            raise ValueError(f'{collaborator_cn} was already requested to be added')
+
+        # check if this collaborator was already authorized
+        if collaborator_cn in self.authorized_cols:
+            raise ValueError(f'{collaborator_cn} was already authorized')
+
+        self.collaborators_to_add.append((collaborator_label, collaborator_cn))
+
+    def remove_collaborator(self, collaborator_label, collaborator_cn):
+        """
+        RPC called by admin.
+
+        Removes a collaborator from the federation. This function will save
+        the collaborator in a temporary list. Actual removal of the collaborator
+        will happen at the end of the current round.
+
+        Args:
+            collaborator_label: Collaborator common name  # TODO: fix after merging #944
+            collaborator_cn: Collaborator common name
+        Returns:
+             None
+        """
+        # check if this collaborator was requested to be added
+        if (collaborator_label, collaborator_cn) in self.collaborators_to_add:
+            self.collaborators_to_add.remove(collaborator_cn)
+            return
+
+        # check if this collaborator was already requested to be removed
+        if (collaborator_label, collaborator_cn) in self.collaborators_to_remove:
+            raise ValueError(f'{collaborator_cn} was already requested to be removed')
+
+        # check if this collaborator was already not authorized
+        if collaborator_cn not in self.authorized_cols:
+            raise ValueError(f'{collaborator_cn} is already not authorized')
+
+        self.collaborators_to_remove.append((collaborator_label, collaborator_cn))
 
     def _end_of_round_check(self):
         """
@@ -942,6 +1094,14 @@ class Aggregator:
         all_tasks = self.assigner.get_all_tasks_for_round(self.round_number)
         for task_name in all_tasks:
             self._compute_validation_related_task_metrics(task_name)
+
+        # Save the round status
+        self.previous_round_status = deepcopy(self._get_round_status())
+
+        # Reset monitoring attributes
+        self.collaborator_start_time = {}
+        self.collaborator_end_time = {}
+        self.first_col_start = None
 
         # Once all of the task results have been processed
         self._end_of_round_check_done[self.round_number] = True
@@ -977,6 +1137,18 @@ class Aggregator:
         self.tensor_db.clean_up(self.db_store_rounds)
         # Reset straggler handling policy for the next round.
         self.straggler_handling_policy.reset_policy_for_round()
+
+        # Adding any new collaborators
+        for col_label, col_cn in self.collaborators_to_add:
+            self.authorized_cols.append(col_cn)  # TODO: modify this after merging #944
+            self.assigner.add_collaborator(col_label, col_cn)
+        self.collaborators_to_add.clear()
+
+        # removing any dropped collaborators
+        for col_label, col_cn in self.collaborators_to_remove:
+            self.authorized_cols.remove(col_cn)  # TODO: modify this after merging #944
+            self.assigner.remove_collaborator(col_label, col_cn)
+        self.collaborators_to_remove.clear()
 
     # TODO: To be removed after review
     def _is_task_done(self, task_name):

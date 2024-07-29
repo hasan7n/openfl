@@ -11,6 +11,7 @@ from .collaborator import Collaborator
 from .straggler_handling_functions import StragglerHandlingPolicy
 from .straggler_handling_functions import CutoffTimeBasedStragglerHandling
 from .straggler_handling_functions import PercentageBasedStragglerHandling
+from .admin import Admin
 
 __all__ = [
     'Assigner',
@@ -20,5 +21,6 @@ __all__ = [
     'Collaborator',
     'StragglerHandlingPolicy',
     'CutoffTimeBasedStragglerHandling',
-    'PercentageBasedStragglerHandling'
+    'PercentageBasedStragglerHandling',
+    'Admin'
 ]

@@ -178,3 +178,47 @@ def rmtree(path, ignore_errors=False):
             os.chmod(path, stat.S_IWRITE)  # Windows can not remove read-only files.
         func(path)
     return shutil.rmtree(path, ignore_errors=ignore_errors, onerror=remove_readonly)
+
+
+def convert_experiment_status_proto_to_dict(response):
+    """See ExperimentStatusResponse in aggregator.proto. This function
+    transforms the ExperimentStatusResponse object into a python dict."""
+
+    def convert_task_end_times(tasks):
+        return [{"task_name": task.task_name, "end_time": task.end_time} for task in tasks]
+
+    def convert_collaborators_progress(collaborators):
+        return [
+            {
+                "col_name": collaborator.col_name,
+                "start_time": collaborator.start_time if collaborator.HasField("start_time") else None,
+                "tasks_end_time": convert_task_end_times(collaborator.tasks_end_time)
+            } for collaborator in collaborators
+        ]
+
+    def convert_experiment_status(round_status):
+        round_start = None
+        if round_status.HasField("round_start"):
+            round_start = round_status.round_start
+
+        return {
+            "round": round_status.round,
+            "round_start": round_start,
+            "collaborators_progress": convert_collaborators_progress(round_status.collaborators_progress),
+            "stragglers": list(round_status.stragglers),
+            "to_add_next_round": list(round_status.to_add_next_round),
+            "to_remove_next_round": list(round_status.to_remove_next_round),
+            "available_collaborators": list(round_status.available_collaborators),
+            "assigned_collaborators": list(round_status.assigned_collaborators)
+        }
+
+    current_round_dict = convert_experiment_status(response.current_round)
+    previous_round_dict = None
+    if response.HasField("previous_round"):
+        previous_round_dict = convert_experiment_status(response.previous_round)
+    response_dict = {
+        "previous_round": previous_round_dict,
+        "current_round": current_round_dict,
+    }
+
+    return response_dict
