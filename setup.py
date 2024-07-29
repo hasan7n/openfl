@@ -93,6 +93,7 @@ setup(
         'openfl.interface.aggregation_functions',
         'openfl.interface.aggregation_functions.core',
         'openfl.interface.aggregation_functions.experimental',
+        'openfl.component.admin',
         'openfl.component.aggregator',
         'openfl.component.assigner',
         'openfl.component.collaborator',
