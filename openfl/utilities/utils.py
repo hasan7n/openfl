@@ -205,7 +205,9 @@ def convert_experiment_status_proto_to_dict(response):
             "round": round_status.round,
             "round_start": round_start,
             "collaborators_progress": convert_collaborators_progress(round_status.collaborators_progress),
-            "stragglers": list(round_status.stragglers)
+            "stragglers": list(round_status.stragglers),
+            "to_add_next_round": list(round_status.to_add_next_round),
+            "to_remove_next_round": list(round_status.to_remove_next_round),
         }
 
     current_round_dict = convert_experiment_status(response.current_round)

@@ -920,6 +920,8 @@ class Aggregator:
             "start_times": self.collaborator_start_time,
             "end_times": self.collaborator_end_time,
             "stragglers": self.stragglers,
+            "to_add_next_round": self.collaborators_to_add,
+            "to_remove_next_round": self.collaborators_to_remove,
         }
         return status
 

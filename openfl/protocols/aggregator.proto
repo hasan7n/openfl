@@ -156,6 +156,8 @@ message ExperimentStatus {
   optional double round_start = 2;
   repeated CollaboratorProgress collaborators_progress = 3;
   repeated string stragglers = 4;
+  repeated string to_add_next_round = 5;
+  repeated string to_remove_next_round = 6;
 }
 
 message GetExperimentStatusResponse {
