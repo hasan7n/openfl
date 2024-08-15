@@ -107,6 +107,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             common_name = context.auth_context()[
                 'x509_common_name'][0].decode('utf-8')
             admin_common_name = request.header.sender
+            # Authenticate
             if not self.aggregator.valid_admin_cn_and_id(
                     common_name, admin_common_name):
                 # Random delay in authentication failures
@@ -116,10 +117,12 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
                     f'Invalid admin. CN: |{common_name}| '
                     f'admin_common_name: |{admin_common_name}|')
 
-        if not self.aggregator.valid_admin_endpoint(endpoint_name):
-            context.abort(
-                    StatusCode.UNAVAILABLE,
-                    f'This endpoint is not permitted for this federation. Endpoint: |{endpoint_name}| ')
+            # Authorize
+            if not self.aggregator.valid_admin_endpoint(endpoint_name, admin_common_name):
+                context.abort(
+                        StatusCode.PERMISSION_DENIED,
+                        f'This endpoint is not permitted for this admin. Endpoint: |{endpoint_name}| '
+                        f'admin_common_name: |{admin_common_name}|')
 
     def get_header(self, collaborator_name):
         """
