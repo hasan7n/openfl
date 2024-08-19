@@ -284,6 +284,24 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             header=self.get_header(collaborator_name)
         )
 
+    def ConnectivityCheck(self, request, context):  # NOQA:N802
+        """
+        Just connect to the aggregator, to check if there are connectivity issues.
+        Called by collaborators
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_collaborator(request, context)
+        self.check_request(request)
+        collaborator_name = request.header.sender
+        self.logger.info(f'{collaborator_name} checked connectivity and succeeded.')
+        return aggregator_pb2.ConnectivityCheckResponse(
+            header=self.get_header(collaborator_name)
+        )
+
     def AddCollaborator(self, request, context):  # NOQA:N802
         """
         Request to add a collaborator.

@@ -50,3 +50,7 @@ class Admin:
         self.client.admin_set_straggler_cutoff_time(
             self.admin_name, timeout_in_seconds
         )
+
+    def connectivity_check(self):
+        self.logger.info("Checking connectivity...")
+        self.client.connectivity_check(self.admin_name)

@@ -53,7 +53,11 @@ class RetryOnRpcErrorClientInterceptor(
 
     def _intercept_call(
         self, continuation, client_call_details, request_or_iterator
-    ):
+    ):  # HK-TODO: have here a list of service names that we don't want to retry on failure.
+        #          This will clean the "dirty" way I introduced earlier that calls the client object
+        #          with the `for_admin` flag.
+        #          hint for this todo: `client_call_details.method` for example will give
+        #          "/openfl.aggregator.Aggregator/ConnectivityCheck"
         """Intercept the call to the gRPC server."""
         while True:
             response = continuation(client_call_details, request_or_iterator)
@@ -391,6 +395,17 @@ class AggregatorGRPCClient:
             NoCompressionPipeline(),
         )
         return tensor_dict
+
+    @_handle_grpc_error
+    @_atomic_connection
+    def connectivity_check(self, collaborator_name):
+        """Check if collaborator can connect to the aggregator."""
+        self._set_header(collaborator_name)
+
+        request = aggregator_pb2.ConnectivityCheckRequest(header=self.header)
+        response = self.stub.ConnectivityCheck(request)
+        # also do other validation, like on the round_number
+        self.validate_response(response, collaborator_name)
 
     @_handle_grpc_error
     @_atomic_connection  # HK-TODO: remove this wrapper?
