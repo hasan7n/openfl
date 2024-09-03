@@ -173,7 +173,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
                 Request sent from an admin that requires validation
         """
         # TODO improve this check. the sender name could be spoofed
-        check_is_in(request.header.sender, self.aggregator.admins, self.logger)
+        check_is_in(request.header.sender, self.aggregator.admins_endpoints_mapping.keys(), self.logger)
 
         # check that the message is for me
         check_equal(request.header.receiver, self.aggregator.uuid, self.logger)
