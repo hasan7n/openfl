@@ -92,6 +92,7 @@ class Aggregator:
         self.logger = getLogger(__name__)
         self.write_logs = write_logs
         self.log_metric_callback = log_metric_callback
+        self.metrics = []
 
         self.straggler_handling_policy = (
             straggler_handling_policy or CutoffTimeBasedStragglerHandling()
@@ -674,6 +675,7 @@ class Aggregator:
                     'metric_value': float(value),
                 }
                 self.metric_queue.put(metrics)
+                self.metrics.append(metrics)
                 self.logger.metric("%s", str(metrics))
 
             task_results.append(tensor_key)
@@ -979,6 +981,7 @@ class Aggregator:
                         f'Aggregated metric {agg_tensor_key} could not be collected '
                         f'for round {self.round_number}. Skipping reporting for this round')
                 self.metric_queue.put(metrics)
+                self.metrics.append(metrics)
                 self.logger.metric("%s", metrics)
 
                 # FIXME: Configurable logic for min/max criteria in saving best.
@@ -993,6 +996,7 @@ class Aggregator:
                 self._prepare_trained(tensor_name, origin, round_number, report, agg_results)
 
     def _get_round_status(self):
+
         status = {
             "round": self.round_number,
             "round_start": self.first_col_start,
@@ -1004,6 +1008,7 @@ class Aggregator:
             "to_remove_next_round": self.collaborators_to_remove,
             "available_collaborators": self.available_collaborators,
             "assigned_collaborators": self.assigner.get_assigned_collaborators() or [],
+            "metrics": self.metrics,
         }
         return status
 
@@ -1159,6 +1164,8 @@ class Aggregator:
         self.available_collaborators = []
         # resetting collaborators_done for next round
         self.collaborators_done = []
+        # resetting tracked metrics results for next round
+        self.metrics = []
 
         # Save the latest model
         self.logger.info(f'Saving round {self.round_number} model...')
