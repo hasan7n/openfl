@@ -1018,7 +1018,6 @@ class Aggregator:
 
         Returns experiment status for the current and previous rounds.
         """
-        self._retrieve_metrics()
         current_round_status = self._get_round_status()
         previous_round_status = self.previous_round_status
         return current_round_status, previous_round_status
