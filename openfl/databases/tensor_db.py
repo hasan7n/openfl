@@ -162,6 +162,7 @@ class TensorDB:
                                 & (self.tensor_db['report'] == report)
                                 & (self.tensor_db['tags'] == tags)]['nparray']
         if len(raw_df) > 0:
+            from IPython.display import display
             print(f"Brandon DEBUG - agg tensor already in db:")
             display(raw_df)
             print(f"Brandon DEBUG")
