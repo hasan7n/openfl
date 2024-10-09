@@ -165,6 +165,9 @@ class TensorDB:
             from IPython.display import display
             print(f"Brandon DEBUG - agg tensor already in db:")
             display(raw_df)
+            print(f"Will be grabbing this first row:")
+            print(raw_df.iloc[0])
+            print(f"BUT, the raw_df has {len(raw_df)} rows.")
             print(f"Brandon DEBUG")
             return np.array(raw_df.iloc[0]), {}
 
