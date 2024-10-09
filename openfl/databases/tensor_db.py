@@ -169,7 +169,8 @@ class TensorDB:
             print(raw_df.iloc[0])
             print(f"BUT, the raw_df has {len(raw_df)} rows.")
             print(f"Brandon DEBUG")
-            return np.array(raw_df.iloc[0]), {}
+            # Brandon commented out the tuple creation below
+            return np.array(raw_df.iloc[0]) # , {}
 
         for col in collaborator_names:
             new_tags = change_tags(tags, add_field=col)
