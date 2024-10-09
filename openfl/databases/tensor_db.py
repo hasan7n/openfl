@@ -162,6 +162,9 @@ class TensorDB:
                                 & (self.tensor_db['report'] == report)
                                 & (self.tensor_db['tags'] == tags)]['nparray']
         if len(raw_df) > 0:
+            print(f"Brandon DEBUG - agg tensor already in db:")
+            display(raw_df)
+            print(f"Brandon DEBUG")
             return np.array(raw_df.iloc[0]), {}
 
         for col in collaborator_names:
