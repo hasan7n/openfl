@@ -163,7 +163,7 @@ class TensorDB:
                                 & (self.tensor_db['tags'] == tags)]['nparray']
         if len(raw_df) > 0:
             from IPython.display import display
-            print(f"Brandon DEBUG - agg tensor already in db:")
+            print(f"Brandon DEBUG - agg tensor {tensor_key} already in db:")
             display(raw_df)
             print(f"Will be grabbing this first row:")
             print(raw_df.iloc[0])
@@ -201,7 +201,7 @@ class TensorDB:
                                                        fl_round,
                                                        tags)
                 self.cache_tensor({tensor_key: agg_nparray})
-
+                print(f"Brandon DEBUG - agg tensor {tensor_key} being aggregated in privileged setting")
                 return np.array(agg_nparray)
 
         db_iterator = self._iterate()
@@ -211,7 +211,7 @@ class TensorDB:
                                            fl_round,
                                            tags)
         self.cache_tensor({tensor_key: agg_nparray})
-
+        print(f"Brandon DEBUG - agg tensor {tensor_key} being aggregated in non-privileged setting")
         return np.array(agg_nparray)
 
     def _iterate(self, order_by: str = 'round', ascending: bool = False) -> Iterator[pd.Series]:
