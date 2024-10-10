@@ -950,7 +950,7 @@ class Aggregator:
         # transformations to the tensorkey to resolve the aggregated
         # tensor for that round
         task_agg_function = self.assigner.get_aggregation_type_for_task(task_name)
-        print(f"Brandon DEBUG - about to grab col_for_tasks 0 with col_to_tasks:{collaborators_for_task} and round {self.round_number}")
+        # print(f"Brandon DEBUG - about to grab col_for_tasks 0 with col_to_tasks:{collaborators_for_task} and round {self.round_number}")
         task_key = TaskResultKey(task_name, collaborators_for_task[0], self.round_number)
 
         for tensor_key in self.collaborator_tasks_results[task_key]:
