@@ -156,6 +156,10 @@ class TensorDB:
         # Check if the aggregated tensor is already present in TensorDB
         tensor_name, origin, fl_round, report, tags = tensor_key
 
+        if tensor_name == 'conv_blocks_context.5.1.blocks.0.conv.weight':
+            print(f"Brandon DEBUG - getting agg of {tensor_name} for round {fl_round}")
+            print(f"Col weighting is: {collaborator_weight_dict}\n")
+
         raw_df = self.tensor_db[(self.tensor_db['tensor_name'] == tensor_name)
                                 & (self.tensor_db['origin'] == origin)
                                 & (self.tensor_db['round'] == fl_round)

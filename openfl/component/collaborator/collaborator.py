@@ -401,10 +401,10 @@ class Collaborator:
         data_size = -1
 
         if 'train' in task_name:
-            data_size = self.task_runner.get_train_data_size()
+            data_size = self.task_runner.get_train_data_size(task_dependent=True, task_name=task_name)
 
         if 'valid' in task_name:
-            data_size = self.task_runner.get_valid_data_size()
+            data_size = self.task_runner.get_valid_data_size(task_dependent=True, task_name=task_name)
 
         self.logger.debug(f'{task_name} data size = {data_size}')
 
