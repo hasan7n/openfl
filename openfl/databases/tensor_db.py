@@ -156,10 +156,6 @@ class TensorDB:
         # Check if the aggregated tensor is already present in TensorDB
         tensor_name, origin, fl_round, report, tags = tensor_key
 
-        if tensor_name in ['conv_blocks_context.5.1.blocks.0.conv.weight', 'val_eval', 'train_loss']:
-            print(f"Brandon DEBUG - getting agg of {tensor_name} for round {fl_round}")
-            print(f"Col weighting is: {collaborator_weight_dict}\n")
-
         raw_df = self.tensor_db[(self.tensor_db['tensor_name'] == tensor_name)
                                 & (self.tensor_db['origin'] == origin)
                                 & (self.tensor_db['round'] == fl_round)
@@ -208,7 +204,9 @@ class TensorDB:
                                                        fl_round,
                                                        tags)
                 self.cache_tensor({tensor_key: agg_nparray})
-                # print(f"Brandon DEBUG - agg tensor {tensor_key} being aggregated in privileged setting")
+                if tensor_name in ['conv_blocks_context.5.1.blocks.0.conv.weight', 'val_eval', 'train_loss']:
+                    print(f"Brandon DEBUG - getting agg of {tensor_name} for round {fl_round}")
+                    print(f"Col weighting is: {collaborator_weight_dict}\n")
                 return np.array(agg_nparray)
 
         db_iterator = self._iterate()
@@ -218,7 +216,9 @@ class TensorDB:
                                            fl_round,
                                            tags)
         self.cache_tensor({tensor_key: agg_nparray})
-        # print(f"Brandon DEBUG - agg tensor {tensor_key} being aggregated in non-privileged setting")
+        if tensor_name in ['conv_blocks_context.5.1.blocks.0.conv.weight', 'val_eval', 'train_loss']:
+            print(f"Brandon DEBUG - getting agg of {tensor_name} for round {fl_round}")
+            print(f"Col weighting is: {collaborator_weight_dict}\n")
         return np.array(agg_nparray)
 
     def _iterate(self, order_by: str = 'round', ascending: bool = False) -> Iterator[pd.Series]:
