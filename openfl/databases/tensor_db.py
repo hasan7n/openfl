@@ -162,16 +162,6 @@ class TensorDB:
                                 & (self.tensor_db['report'] == report)
                                 & (self.tensor_db['tags'] == tags)]['nparray']
         if len(raw_df) > 0:
-            """
-            from IPython.display import display
-            print(f"Brandon DEBUG - agg tensor {tensor_key} already in db:")
-            # display(raw_df)
-            # print(f"Will be grabbing this first row:")
-            # print(raw_df.iloc[0])
-            print(f"BUT, the raw_df has {len(raw_df)} rows.")
-            print(f"Brandon DEBUG")
-            # Brandon commented out the tuple creation below
-            """
             return np.array(raw_df.iloc[0]) # , {}
 
         for col in collaborator_names:
