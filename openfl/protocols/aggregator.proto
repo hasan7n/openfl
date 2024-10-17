@@ -20,6 +20,7 @@ service Aggregator {
   rpc RemoveCollaborator(RemoveCollaboratorRequest) returns (RemoveCollaboratorResponse) {}
   rpc GetExperimentStatus(GetExperimentStatusRequest) returns (GetExperimentStatusResponse) {}
   rpc SetStragglerCuttoffTime(SetStragglerCuttoffTimeRequest) returns (SetStragglerCuttoffTimeResponse) {}
+  rpc ConnectivityCheck(ConnectivityCheckRequest) returns (ConnectivityCheckResponse) {}
 }
 
 message MessageHeader {
@@ -175,5 +176,13 @@ message GetExperimentStatusResponse {
 }
 
 message SetStragglerCuttoffTimeResponse {
+  MessageHeader header = 1;
+}
+
+message ConnectivityCheckRequest {
+  MessageHeader header = 1;
+}
+
+message ConnectivityCheckResponse {
   MessageHeader header = 1;
 }

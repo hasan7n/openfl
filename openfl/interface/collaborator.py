@@ -61,6 +61,41 @@ def start_(plan, collaborator_name, data_config, secure):
     plan.get_collaborator(collaborator_name).run()
 
 
+@collaborator.command(name='connectivity_check')
+@option('-p', '--plan', required=False,
+        help='Federated learning plan [plan/plan.yaml]',
+        default='plan/plan.yaml',
+        type=ClickPath(exists=True))
+@option('-n', '--collaborator_name', required=True,
+        help='The certified common name of the collaborator')
+@option('-s', '--secure', required=False,
+        help='Enable Intel SGX Enclave', is_flag=True, default=False)
+def connectivity_check_(plan, collaborator_name, secure):
+    """Check connectivity to the aggregator.
+    Tested failures: (both gave StatusCode.UNAVAILABLE failed to connect to all addresses)
+    - When the SSL cert is corrupt, the error details look like: "UNAVAILABLE..."
+    - When the aggregator is down,  the error details look like: "UNKNOWN... Connection refused (111) ..."
+    """
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if plan and is_directory_traversal(plan):
+        echo('Federated learning plan path is out of the openfl workspace scope.')
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+
+    logger.info('🧿 Checking connectivity...')
+    # HK-TODO: We don't want to use the Collaborator component for this command, since
+    #          it does a bunch of unneeded stuff (tries to find data.yaml, initializes tensorDB, ...)
+    #          We use here get_admin because the Admin component's interface fits this command.
+    #          what we should do is rename the "Admin" component into something like
+    #          "UtilityExecuter", whose aim is to just call an endpoint. The "admin" idea
+    #          doesn't actually need a separate component. It's just an authorization check.
+    plan.get_admin(collaborator_name).connectivity_check()
+
+
 @collaborator.command(name='create')
 @option('-n', '--collaborator_name', required=True,
         help='The certified common name of the collaborator')

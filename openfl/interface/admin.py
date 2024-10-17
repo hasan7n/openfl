@@ -149,7 +149,7 @@ def remove_collaborator(plan, admin_name, col_label, col_cn):
     plan.get_admin(admin_name).remove_collaborator(col_label, col_cn)
 
 
-@admin.command(name="set_straggler_cuttoff_time")
+@admin.command(name="set_straggler_cutoff_time")
 @option(
     "-p",
     "--plan",
@@ -170,7 +170,7 @@ def remove_collaborator(plan, admin_name, col_label, col_cn):
     type=int,
     help="The number of seconds to set the new straggler cutoff timeout to.",
 )
-def set_straggler_cuttoff_time(plan, admin_name, timeout_in_seconds):
+def set_straggler_cutoff_time(plan, admin_name, timeout_in_seconds):
     """Set the cutoff timeout in the straggler handler to a new value (if supported)."""
     from pathlib import Path
 
@@ -183,4 +183,4 @@ def set_straggler_cuttoff_time(plan, admin_name, timeout_in_seconds):
         sys.exit(1)
 
     plan = Plan.parse(plan_config_path=Path(plan).absolute())
-    plan.get_admin(admin_name).set_straggler_cuttoff_time(timeout_in_seconds)
+    plan.get_admin(admin_name).set_straggler_cutoff_time(timeout_in_seconds)

@@ -107,6 +107,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             common_name = context.auth_context()[
                 'x509_common_name'][0].decode('utf-8')
             admin_common_name = request.header.sender
+            # Authenticate
             if not self.aggregator.valid_admin_cn_and_id(
                     common_name, admin_common_name):
                 # Random delay in authentication failures
@@ -116,10 +117,12 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
                     f'Invalid admin. CN: |{common_name}| '
                     f'admin_common_name: |{admin_common_name}|')
 
-        if not self.aggregator.valid_admin_endpoint(endpoint_name):
-            context.abort(
-                    StatusCode.UNAVAILABLE,
-                    f'This endpoint is not permitted for this federation. Endpoint: |{endpoint_name}| ')
+            # Authorize
+            if not self.aggregator.valid_admin_endpoint(endpoint_name, admin_common_name):
+                context.abort(
+                        StatusCode.PERMISSION_DENIED,
+                        f'This endpoint is not permitted for this admin. Endpoint: |{endpoint_name}| '
+                        f'admin_common_name: |{admin_common_name}|')
 
     def get_header(self, collaborator_name):
         """
@@ -170,7 +173,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
                 Request sent from an admin that requires validation
         """
         # TODO improve this check. the sender name could be spoofed
-        check_is_in(request.header.sender, self.aggregator.admins, self.logger)
+        check_is_in(request.header.sender, self.aggregator.admins_endpoints_mapping.keys(), self.logger)
 
         # check that the message is for me
         check_equal(request.header.receiver, self.aggregator.uuid, self.logger)
@@ -278,6 +281,24 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             collaborator_name, round_number, task_name, data_size, named_tensors)
         # turn data stream into local model update
         return aggregator_pb2.SendLocalTaskResultsResponse(
+            header=self.get_header(collaborator_name)
+        )
+
+    def ConnectivityCheck(self, request, context):  # NOQA:N802
+        """
+        Just connect to the aggregator, to check if there are connectivity issues.
+        Called by collaborators
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_collaborator(request, context)
+        self.check_request(request)
+        collaborator_name = request.header.sender
+        self.logger.info(f'{collaborator_name} checked connectivity and succeeded.')
+        return aggregator_pb2.ConnectivityCheckResponse(
             header=self.get_header(collaborator_name)
         )
 

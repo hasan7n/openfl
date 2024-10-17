@@ -348,6 +348,15 @@ class Plan:
                                 f'or be import from code part, get {log_metric_callback}')
 
         defaults[SETTINGS]['log_metric_callback'] = log_metric_callback
+
+        # Type checks for `admins_endpoints_mapping`
+        admins_endpoints_mapping = defaults[SETTINGS]["admins_endpoints_mapping"]
+        if not isinstance(admins_endpoints_mapping, dict):
+            raise TypeError('admins_endpoints_mapping should be a dictionary')
+        for value in admins_endpoints_mapping.values():
+            if not isinstance(value, list):
+                raise TypeError('values of admins_endpoints_mapping should be lists')
+
         if self.aggregator_ is None:
             self.aggregator_ = Plan.build(**defaults, initial_tensor_dict=tensor_dict)
 

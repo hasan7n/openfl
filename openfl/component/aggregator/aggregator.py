@@ -27,8 +27,7 @@ class Aggregator:
         aggregator_uuid (str): Aggregation ID.
         federation_uuid (str): Federation ID.
         authorized_cols (list of str): The list of IDs of enrolled collaborators.
-        admins* (list of str): The list of common users with admin privileges.
-        allowed_admin_endpoints* (list of str): The list of allowed admin endpoints (grpc service names)
+        admins_endpoints_mapping* (dict): A mapping of admins common names and authorized endpoints (grpc service names)
         init_state_path* (str): The location of the initial weight file.
         last_state_path* (str): The file location to store the latest weight.
         best_state_path* (str): The file location to store the weight of the best model.
@@ -44,8 +43,7 @@ class Aggregator:
                  federation_uuid,
                  authorized_cols,
 
-                 admins,
-                 allowed_admin_endpoints,
+                 admins_endpoints_mapping,
 
                  init_state_path,
                  best_state_path,
@@ -146,8 +144,7 @@ class Aggregator:
         self.first_col_start = None
 
         # for admin authorization
-        self.admins = admins
-        self.allowed_admin_endpoints = allowed_admin_endpoints
+        self.admins_endpoints_mapping = admins_endpoints_mapping
 
         # new/dropped collaborators
         self.collaborators_to_add = []
@@ -275,21 +272,24 @@ class Aggregator:
 
         """
         return (cert_common_name == admin_common_name
-                and admin_common_name in self.admins)
+                and admin_common_name in self.admins_endpoints_mapping.keys())
 
-    def valid_admin_endpoint(self, endpoint_id):
+    def valid_admin_endpoint(self, endpoint_id, admin_common_name):
         """
-        Determine if endpoint being called by the admin is permitted in this federation.
+        Determine if endpoint being called by the admin is permitted
 
         Args:
             endpoint_id: ID of the endpoint. It corresponds to the grpc service name
                          defined in the protobuf file.
+            admin_common_name: Common name of the admin
 
         Returns:
             bool: True means the endpoint is allowed.
 
         """
-        return endpoint_id in self.allowed_admin_endpoints
+        # This assumes the key exists in the dictionary, since this function
+        # is called after authentication
+        return endpoint_id in self.admins_endpoints_mapping[admin_common_name]
 
     def all_quit_jobs_sent(self):
         """Assert all quit jobs are sent to collaborators."""

@@ -44,9 +44,13 @@ class Admin:
         status_dict = self.client.admin_get_experiment_status(self.admin_name)
         return status_dict
 
-    def set_straggler_cuttoff_time(self, timeout_in_seconds):
+    def set_straggler_cutoff_time(self, timeout_in_seconds):
         """Send a request to the aggregator to set a new straggler timeout."""
         self.logger.info("Setting new straggler cutoff...")
-        self.client.admin_set_straggler_cuttoff_time(
+        self.client.admin_set_straggler_cutoff_time(
             self.admin_name, timeout_in_seconds
         )
+
+    def connectivity_check(self):
+        self.logger.info("Checking connectivity...")
+        self.client.connectivity_check(self.admin_name)
