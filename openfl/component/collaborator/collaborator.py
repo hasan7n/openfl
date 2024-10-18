@@ -417,6 +417,8 @@ class Collaborator:
                     f'is sending metric for task {task_name}:'
                     f' {tensor_name}\t{tensor_dict[tensor]:f}')
 
+        print(f"STDOUT_INFO: Sending task:{task_name} results with weight:{data_size}\n")
+
         self.client.send_local_task_results(
             self.collaborator_name, round_number, task_name, data_size, named_tensors)
 
