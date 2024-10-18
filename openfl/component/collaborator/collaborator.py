@@ -401,10 +401,10 @@ class Collaborator:
         data_size = -1
 
         if 'train' in task_name:
-            data_size = self.task_runner.get_train_data_size()
+            data_size = self.task_runner.get_train_data_size(task_name=task_name)
 
         if 'valid' in task_name:
-            data_size = self.task_runner.get_valid_data_size()
+            data_size = self.task_runner.get_valid_data_size(task_name=task_name)
 
         self.logger.debug(f'{task_name} data size = {data_size}')
 
@@ -416,6 +416,8 @@ class Collaborator:
                     f'Round {round_number}, collaborator {self.collaborator_name} '
                     f'is sending metric for task {task_name}:'
                     f' {tensor_name}\t{tensor_dict[tensor]:f}')
+
+        print(f"STDOUT_INFO: Sending task:{task_name} results with weight:{data_size}\n")
 
         self.client.send_local_task_results(
             self.collaborator_name, round_number, task_name, data_size, named_tensors)

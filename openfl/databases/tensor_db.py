@@ -162,7 +162,9 @@ class TensorDB:
                                 & (self.tensor_db['report'] == report)
                                 & (self.tensor_db['tags'] == tags)]['nparray']
         if len(raw_df) > 0:
-            return np.array(raw_df.iloc[0]), {}
+            if tensor_name in ['conv_blocks_context.5.1.blocks.0.conv.weight', 'val_eval', 'train_loss']:
+                print(f"STDOUT_INFO: Col weighting is: {collaborator_weight_dict}\n")
+            return np.array(raw_df.iloc[0]) # , {}
 
         for col in collaborator_names:
             new_tags = change_tags(tags, add_field=col)
@@ -194,7 +196,6 @@ class TensorDB:
                                                        fl_round,
                                                        tags)
                 self.cache_tensor({tensor_key: agg_nparray})
-
                 return np.array(agg_nparray)
 
         db_iterator = self._iterate()
@@ -204,7 +205,6 @@ class TensorDB:
                                            fl_round,
                                            tags)
         self.cache_tensor({tensor_key: agg_nparray})
-
         return np.array(agg_nparray)
 
     def _iterate(self, order_by: str = 'round', ascending: bool = False) -> Iterator[pd.Series]:
