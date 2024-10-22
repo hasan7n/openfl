@@ -163,7 +163,7 @@ class TensorDB:
                                 & (self.tensor_db['tags'] == tags)]['nparray']
         if len(raw_df) > 0:
             if tensor_name in ['conv_blocks_context.5.1.blocks.0.conv.weight', 'val_eval', 'train_loss']:
-                print(f"STDOUT_INFO: Col weighting is: {collaborator_weight_dict}\n")
+                print(f"STDOUT_INFO: Col weighting for {tensor_name} is: {collaborator_weight_dict}\n")
             return np.array(raw_df.iloc[0]) # , {}
 
         for col in collaborator_names:
