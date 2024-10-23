@@ -15,7 +15,7 @@ import pandas as pd
 from openfl.interface.aggregation_functions import AggregationFunction
 from openfl.utilities import change_tags
 from openfl.utilities import LocalTensor
-from openfl.utilities import TensorKey
+from openfl.utilities import TensorKey, tensorkey_for_dynamic_task_arg
 from openfl.databases.utilities import _search, _store, _retrieve, ROUND_PLACEHOLDER
 
 
@@ -78,6 +78,16 @@ class TensorDB:
             | self.tensor_db['report']
         ].reset_index(drop=True)
 
+    # MICAH CHANGE BEGIN: api for dynamic task args
+    def get_dynamic_arg(self, task_name, arg_name, round_number, agg_id):
+        return self.get_tensor_from_cache(tensorkey_for_dynamic_task_arg(task_name, arg_name, round_number, agg_id))[0]
+
+    def cache_dynamic_arg(self, task_name, arg_name, round_number, agg_id, value):
+        self.cache_tensor({
+            tensorkey_for_dynamic_task_arg(task_name, arg_name, round_number, agg_id): np.array([value])
+        })
+    # MICAH CHANGE END
+ 
     def cache_tensor(self, tensor_key_dict: Dict[TensorKey, np.ndarray]) -> None:
         """Insert tensor into TensorDB (dataframe).
 

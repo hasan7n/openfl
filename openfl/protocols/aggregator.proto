@@ -21,6 +21,8 @@ service Aggregator {
   rpc GetExperimentStatus(GetExperimentStatusRequest) returns (GetExperimentStatusResponse) {}
   rpc SetStragglerCuttoffTime(SetStragglerCuttoffTimeRequest) returns (SetStragglerCuttoffTimeResponse) {}
   rpc ConnectivityCheck(ConnectivityCheckRequest) returns (ConnectivityCheckResponse) {}
+  rpc SetDynamicTaskArg(SetDynamicTaskArgRequest) returns (SetDynamicTaskArgResponse) {}
+  rpc GetDynamicTaskArg(GetDynamicTaskArgRequest) returns (GetDynamicTaskArgResponse) {}
 }
 
 message MessageHeader {
@@ -185,4 +187,27 @@ message ConnectivityCheckRequest {
 
 message ConnectivityCheckResponse {
   MessageHeader header = 1;
+}
+
+message SetDynamicTaskArgRequest {
+  MessageHeader header = 1;
+  string task_name = 2;
+  string arg_name = 3;
+  float value = 4;
+}
+
+message SetDynamicTaskArgResponse {
+  MessageHeader header = 1;
+}
+
+message GetDynamicTaskArgRequest {
+  MessageHeader header = 1;
+  string task_name = 2;
+  string arg_name = 3;
+}
+
+message GetDynamicTaskArgResponse {
+  MessageHeader header = 1;
+  float current_value = 2;
+  float next_value = 3;
 }

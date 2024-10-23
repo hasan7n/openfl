@@ -12,7 +12,7 @@ from openfl.databases import TensorDB
 from openfl.pipelines import NoCompressionPipeline
 from openfl.pipelines import TensorCodec
 from openfl.protocols import utils
-from openfl.utilities import TensorKey
+from openfl.utilities import TensorKey, tensorkey_for_dynamic_task_arg, arg_name_from_dynamic_task_arg_tensor_key
 
 
 class DevicePolicy(Enum):
@@ -79,6 +79,7 @@ class Collaborator:
                  delta_updates=False,
                  compression_pipeline=None,
                  db_store_rounds=1,
+                 dynamictaskargs=None,
                  **kwargs):
         """Initialize."""
         self.single_col_cert_common_name = None
@@ -98,6 +99,9 @@ class Collaborator:
 
         self.task_runner = task_runner
         self.delta_updates = delta_updates
+
+        # MICAH CHANGE:
+        self.dynamictaskargs = dynamictaskargs
 
         self.client = client
 
@@ -223,6 +227,14 @@ class Collaborator:
                 TensorKey(tname, origin, rnd_num + round_number, report, tags)
             )
 
+        # MICAH CHANGE: add our dynamic task args
+        dynamicarg_tensor_keys = []
+        if self.dynamictaskargs is not None and task_name in self.dynamictaskargs.keys():
+            for arg_name in self.dynamictaskargs[task_name].keys():
+                tk = tensorkey_for_dynamic_task_arg(task_name, arg_name, round_number, self.aggregator_uuid)
+                dynamicarg_tensor_keys.append(tk)
+        required_tensorkeys.extend(dynamicarg_tensor_keys)
+
         # print('Required tensorkeys = {}'.format(
         # [tk[0] for tk in required_tensorkeys]))
         input_tensor_dict = self.get_numpy_dict_for_tensorkeys(
@@ -251,6 +263,11 @@ class Collaborator:
             # Tasks are defined as methods of TaskRunner
             func = getattr(self.task_runner, func_name)
             self.logger.debug('Using TaskRunner subclassing API')
+
+        # MICAH CHANGE: pop dynamic args and add to kwargs
+        for key in dynamicarg_tensor_keys:
+            arg_name = arg_name_from_dynamic_task_arg_tensor_key(key)
+            kwargs[arg_name] = input_tensor_dict.pop(key.tensor_name)[0]
 
         global_output_tensor_dict, local_output_tensor_dict = func(
             col_name=self.collaborator_name,
@@ -338,7 +355,7 @@ class Collaborator:
                         tensor_key,
                         require_lossless=True
                     )
-            elif 'model' in tags:
+            elif 'model' in tags or 'dynamictaskarg' in tags:
                 # Pulling the model for the first time
                 nparray = self.get_aggregated_tensor_from_aggregator(
                     tensor_key,
