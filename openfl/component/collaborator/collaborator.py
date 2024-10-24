@@ -270,9 +270,10 @@ class Collaborator:
             kwargs[arg_name] = input_tensor_dict.pop(key.tensor_name)[0]
 
             # Brandon DEBUG - remove before running
+            self.logger.critical(f"Brandon DEBUG self.collaborator_name:{self.collaborator_name}, arg_name:{arg_name}")
             if self.collaborator_name == 'col2@example.com' and arg_name == 'train_cutoff':
                 kwargs[arg_name] = 10
-                print(f"\n###########\nREMOVE ME Brandon DEBUG - setting col2 train_cutoff to 10s\n##############\n")
+                self.logger.critical(f"\n###########\nREMOVE ME Brandon DEBUG - setting col2 train_cutoff to 10s\n##############\n")
 
         global_output_tensor_dict, local_output_tensor_dict = func(
             col_name=self.collaborator_name,
