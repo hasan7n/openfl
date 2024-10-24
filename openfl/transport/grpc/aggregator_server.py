@@ -416,6 +416,42 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             header=self.get_header(admin_name)
         )
 
+    def SetDynamicTaskArg(self, request, context):  # NOQA:N802
+        """
+        Set a value for a task argument
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "SetDynamicTaskArg") 
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        self.aggregator.set_dynamic_task_arg(request.task_name, request.arg_name, request.value)
+        return aggregator_pb2.SetDynamicTaskArgResponse(
+            header=self.get_header(admin_name)
+        )
+    
+    def GetDynamicTaskArg(self, request, context):  # NOQA:N802
+        """
+        Get a value for a task argument
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "SetDynamicTaskArg") 
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        value_dict = self.aggregator.get_dynamic_task_arg(request.task_name, request.arg_name)
+        return aggregator_pb2.GetDynamicTaskArgResponse(
+            header=self.get_header(admin_name),
+            current_value=value_dict['current_value'],
+            next_value=value_dict['next_value']
+        )
+
     def get_server(self):
         """Return gRPC server."""
         self.server = server(ThreadPoolExecutor(max_workers=cpu_count()),

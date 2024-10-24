@@ -454,3 +454,42 @@ class AggregatorGRPCClient:
         )
         response = self.stub.SetStragglerCuttoffTime(request)
         self.validate_response(response, admin_name)
+        
+    @_handle_grpc_error
+    @_atomic_connection  # MS-TODO: remove this wrapper?
+    def admin_get_(self, admin_name, timeout_in_seconds):
+        """SetStragglerCuttoffTime RPC."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.SetStragglerCuttoffTimeRequest(
+            header=self.header, timeout_in_seconds=timeout_in_seconds
+        )
+        response = self.stub.SetStragglerCuttoffTime(request)
+        self.validate_response(response, admin_name)
+
+    @_handle_grpc_error
+    @_atomic_connection  # MS-TODO: remove this wrapper?
+    def admin_get_dynamic_task_arg(self, admin_name, task_name, arg_name):        
+        """GetDynamicTaskArg RPC."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.GetDynamicTaskArgRequest(
+            header=self.header,
+            task_name=task_name,
+            arg_name=arg_name
+        )
+        response = self.stub.GetDynamicTaskArg(request)
+        self.validate_response(response, admin_name)
+        return response.current_value, response.next_value
+    
+    @_handle_grpc_error
+    @_atomic_connection  # MS-TODO: remove this wrapper?
+    def admin_set_dynamic_task_arg(self, admin_name, task_name, arg_name, value):
+        """SetDynamicTaskArg RPC."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.SetDynamicTaskArgRequest(
+            header=self.header,
+            task_name=task_name,
+            arg_name=arg_name,
+            value=value
+        )
+        response = self.stub.SetDynamicTaskArg(request)
+        self.validate_response(response, admin_name)

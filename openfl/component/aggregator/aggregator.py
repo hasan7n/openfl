@@ -57,6 +57,7 @@ class Aggregator:
                  db_store_rounds=1,
                  write_logs=False,
                  log_metric_callback=None,
+                 dynamictaskargs=None,
                  **kwargs):
         """Initialize."""
         self.round_number = 0
@@ -93,6 +94,8 @@ class Aggregator:
         self.write_logs = write_logs
         self.log_metric_callback = log_metric_callback
 
+        self.dynamictaskargs = dynamictaskargs
+
         self.straggler_handling_policy = (
             straggler_handling_policy or CutoffTimeBasedStragglerHandling()
         )
@@ -125,6 +128,9 @@ class Aggregator:
         else:
             self.model: base_pb2.ModelProto = utils.load_proto(self.init_state_path)
             self._load_initial_tensors()  # keys are TensorKeys
+
+        # load in the initial dynamic task args
+        self._write_dynamic_task_args()
 
         self.collaborator_tensor_results = {}  # {TensorKey: nparray}}
 
@@ -193,6 +199,47 @@ class Aggregator:
         # all initial model tensors are loaded here
         self.tensor_db.cache_tensor(tensor_key_dict)
         self.logger.debug(f'This is the initial tensor_db: {self.tensor_db}')
+
+    # MICAH CHANGE BEGIN: new functions for dynamic task args
+    def set_dynamic_task_arg(self, task_name, arg_name, value):
+        if self.dynamictaskargs is None or \
+            task_name not in self.dynamictaskargs or \
+            arg_name not in self.dynamictaskargs[task_name]:
+            # MICAH TODO: better error
+            raise KeyError
+        elif value < self.dynamictaskargs[task_name][arg_name]['min'] or \
+            value > self.dynamictaskargs[task_name][arg_name]['max']:
+            # MICAH TODO: better error
+            raise ValueError
+        else:
+            self.dynamictaskargs[task_name][arg_name]['value'] = value
+
+    def get_dynamic_task_arg(self, task_name, arg_name):
+        if self.dynamictaskargs is None or \
+            task_name not in self.dynamictaskargs or \
+            arg_name not in self.dynamictaskargs[task_name]:
+            self.logger.info(f"No such keys {task_name} and {arg_name} in:\n{self.dynamictaskargs}")
+            # MICAH TODO: better error
+            raise KeyError
+        return {
+            'current_value': self.tensor_db.get_dynamic_arg(task_name, arg_name, self.round_number, self.uuid), 
+            'next_value': self.dynamictaskargs[task_name][arg_name]['value'],
+        }
+
+    def _write_dynamic_task_args(self):
+        if self.dynamictaskargs is None:
+            return
+
+        for task_name in self.dynamictaskargs.keys():
+            for arg_name in self.dynamictaskargs[task_name]:
+                self.tensor_db.cache_dynamic_arg(
+                    task_name=task_name,
+                    arg_name=arg_name,
+                    agg_id=self.uuid,
+                    round_number=self.round_number,
+                    value=self.dynamictaskargs[task_name][arg_name]['value']
+                )
+    # MICAH CHANGE END: new functions for dynamic task args
 
     def _save_model(self, round_number, file_path):
         """
@@ -1174,6 +1221,9 @@ class Aggregator:
         self.tensor_db.clean_up(self.db_store_rounds)
         # Reset straggler handling policy for the next round.
         self.straggler_handling_policy.reset_policy_for_round()
+
+        # MICAH CHANGE: set dynamic task arg values
+        self._write_dynamic_task_args()
 
         collaborators_changed = False
         if (len(self.collaborators_to_add) + len(self.collaborators_to_remove)) > 0:

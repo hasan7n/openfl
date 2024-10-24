@@ -15,7 +15,7 @@ import pandas as pd
 from openfl.interface.aggregation_functions import AggregationFunction
 from openfl.utilities import change_tags
 from openfl.utilities import LocalTensor
-from openfl.utilities import TensorKey
+from openfl.utilities import TensorKey, tensorkey_for_dynamic_task_arg
 from openfl.databases.utilities import _search, _store, _retrieve, ROUND_PLACEHOLDER
 
 
@@ -78,6 +78,16 @@ class TensorDB:
             | self.tensor_db['report']
         ].reset_index(drop=True)
 
+    # MICAH CHANGE BEGIN: api for dynamic task args
+    def get_dynamic_arg(self, task_name, arg_name, round_number, agg_id):
+        return self.get_tensor_from_cache(tensorkey_for_dynamic_task_arg(task_name, arg_name, round_number, agg_id))[0]
+
+    def cache_dynamic_arg(self, task_name, arg_name, round_number, agg_id, value):
+        self.cache_tensor({
+            tensorkey_for_dynamic_task_arg(task_name, arg_name, round_number, agg_id): np.array([value])
+        })
+    # MICAH CHANGE END
+ 
     def cache_tensor(self, tensor_key_dict: Dict[TensorKey, np.ndarray]) -> None:
         """Insert tensor into TensorDB (dataframe).
 
@@ -162,7 +172,9 @@ class TensorDB:
                                 & (self.tensor_db['report'] == report)
                                 & (self.tensor_db['tags'] == tags)]['nparray']
         if len(raw_df) > 0:
-            return np.array(raw_df.iloc[0]), {}
+            if tensor_name in ['conv_blocks_context.5.1.blocks.0.conv.weight', 'val_eval', 'train_loss']:
+                print(f"STDOUT_INFO: Col weighting for {tensor_name} is: {collaborator_weight_dict}\n")
+            return np.array(raw_df.iloc[0]) # , {}
 
         for col in collaborator_names:
             new_tags = change_tags(tags, add_field=col)
@@ -194,7 +206,6 @@ class TensorDB:
                                                        fl_round,
                                                        tags)
                 self.cache_tensor({tensor_key: agg_nparray})
-
                 return np.array(agg_nparray)
 
         db_iterator = self._iterate()
@@ -204,7 +215,8 @@ class TensorDB:
                                            fl_round,
                                            tags)
         self.cache_tensor({tensor_key: agg_nparray})
-
+        if tensor_name in ['conv_blocks_context.5.1.blocks.0.conv.weight', 'val_eval', 'train_loss']:
+                print(f"STDOUT_INFO: Col weighting for {tensor_name} aggregated just now is: {collaborator_weight_dict}\n")
         return np.array(agg_nparray)
 
     def _iterate(self, order_by: str = 'round', ascending: bool = False) -> Iterator[pd.Series]:

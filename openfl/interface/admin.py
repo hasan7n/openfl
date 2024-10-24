@@ -184,3 +184,92 @@ def set_straggler_cutoff_time(plan, admin_name, timeout_in_seconds):
 
     plan = Plan.parse(plan_config_path=Path(plan).absolute())
     plan.get_admin(admin_name).set_straggler_cutoff_time(timeout_in_seconds)
+
+@admin.command(name="get_dynamic_task_arg")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+@option(
+    "--task_name",
+    required=True,
+    help="The task name",
+)
+@option(
+    "--arg_name",
+    required=True,
+    help="The arg name",
+)
+def get_dynamic_task_arg(plan, admin_name, task_name, arg_name):
+    """Get the current and next values of a dynamic task arg."""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    current_value, next_value = plan.get_admin(admin_name).get_dynamic_task_arg(task_name, arg_name)
+    echo(f'Value for current round: {current_value}\nValue for next round: {next_value}')
+
+
+@admin.command(name="set_dynamic_task_arg")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+@option(
+    "--task_name",
+    required=True,
+    help="The task name",
+)
+@option(
+    "--arg_name",
+    required=True,
+    help="The arg name",
+)
+@option(
+    "--value",
+    required=True,
+    type=float,
+    help="The value for the next round",
+)
+def set_dynamic_task_arg(plan, admin_name, task_name, arg_name, value):
+    """Get the current and next values of a dynamic task arg."""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    plan.get_admin(admin_name).set_dynamic_task_arg(task_name, arg_name, value)
+    echo(f'Done...')

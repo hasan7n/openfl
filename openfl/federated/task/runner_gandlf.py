@@ -100,7 +100,7 @@ class GaNDLFTaskRunner(TaskRunner):
             self.set_tensor_dict(input_tensor_dict, with_opt_vars=False)
 
     def validate(self, col_name, round_num, input_tensor_dict,
-                 use_tqdm=False, **kwargs):
+                 use_tqdm=False, cutofftime=None, **kwargs):
         """Validate.
         Run validation of the model on the local data.
         Args:
@@ -113,6 +113,7 @@ class GaNDLFTaskRunner(TaskRunner):
             global_output_dict:   Tensors to send back to the aggregator
             local_output_dict:   Tensors to maintain in the local TensorDB
         """
+        self.logger.info(f"Received cuttofftime: {cutofftime}")
         self.rebuild_model(round_num, input_tensor_dict, validation=True)
         self.model.eval()
 
@@ -144,7 +145,7 @@ class GaNDLFTaskRunner(TaskRunner):
         # Empty list represents metrics that should only be stored locally
         return output_tensor_dict, {}
 
-    def train(self, col_name, round_num, input_tensor_dict, use_tqdm=False, epochs=1, **kwargs):
+    def train(self, col_name, round_num, input_tensor_dict, use_tqdm=False, epochs=1, cutofftime=None, **kwargs):
         """Train batches.
         Train the model on the requested number of batches.
         Args:
@@ -169,6 +170,7 @@ class GaNDLFTaskRunner(TaskRunner):
             global_output_dict      : Tensors to send back to the aggregator
             local_output_dict       : Tensors to maintain in the local TensorDB
         """
+        self.logger.info(f"Received cuttofftime: {cutofftime}")
         self.rebuild_model(round_num, input_tensor_dict)
         # set to "training" mode
         self.model.train()
