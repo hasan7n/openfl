@@ -701,7 +701,7 @@ class Aggregator:
         self.collaborator_task_weight[task_key] = data_size
 
         print(f"\nBrandon DEBUG - setting col weight")
-        print(f"{KEY:{task_key}}")
+        print(f"KEY:{task_key}")
         print(f"Value:{data_size}\n")
 
         # initialize the list of tensors that go with this task
