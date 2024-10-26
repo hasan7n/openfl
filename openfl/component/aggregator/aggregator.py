@@ -700,10 +700,6 @@ class Aggregator:
         # (if more data is added)
         self.collaborator_task_weight[task_key] = data_size
 
-        print(f"\nBrandon DEBUG - setting col weight")
-        print(f"KEY:{task_key}")
-        print(f"Value:{data_size}\n")
-
         # initialize the list of tensors that go with this task
         # Setting these incrementally is leading to missing values
         task_results = []
@@ -994,8 +990,7 @@ class Aggregator:
             for k, v in collaborator_weights_unnormalized.items()
         }
 
-        print(f"\n Brandon DEBUG - Aggregating metrics for task:{task_name}")
-        print(f"col_weights:{collaborator_weight_dict}\n")
+        print(f"STDOUT_INFO: Aggregating metrics for task:{task_name} with col_weights:{collaborator_weight_dict}\n")
 
         # The validation task should have just a couple tensors (i.e.
         # metrics) associated with it. Because each collaborator should
