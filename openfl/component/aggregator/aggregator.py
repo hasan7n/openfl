@@ -205,12 +205,12 @@ class Aggregator:
         if self.dynamictaskargs is None or \
             task_name not in self.dynamictaskargs or \
             arg_name not in self.dynamictaskargs[task_name]:
-            # MICAH TODO: better error
-            raise KeyError
+            self.logger.info(f"No such keys {task_name} and {arg_name} in:\n{self.dynamictaskargs}")
+            raise ValueError(f"FL plan is not configured to set dynamic task arg:{arg_name} for task:{task_name}")
         elif value < self.dynamictaskargs[task_name][arg_name]['min'] or \
             value > self.dynamictaskargs[task_name][arg_name]['max']:
-            # MICAH TODO: better error
-            raise ValueError
+            self.logger.info(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is not within the allowable range configured in the plan:\n{self.dynamictaskargs}")
+            raise ValueError(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is not within the allowable range:[{self.dynamictaskargs[task_name][arg_name]['min']},{self.dynamictaskargs[task_name][arg_name]['max']}] configured in the FL plan.")
         else:
             self.dynamictaskargs[task_name][arg_name]['value'] = value
 
@@ -219,8 +219,7 @@ class Aggregator:
             task_name not in self.dynamictaskargs or \
             arg_name not in self.dynamictaskargs[task_name]:
             self.logger.info(f"No such keys {task_name} and {arg_name} in:\n{self.dynamictaskargs}")
-            # MICAH TODO: better error
-            raise KeyError
+            raise ValueError(f"FL plan is not configured to set dynamic task arg:{arg_name} for task:{task_name}")
         return {
             'current_value': self.tensor_db.get_dynamic_arg(task_name, arg_name, self.round_number, self.uuid), 
             'next_value': self.dynamictaskargs[task_name][arg_name]['value'],
