@@ -269,14 +269,6 @@ class Collaborator:
             arg_name = arg_name_from_dynamic_task_arg_tensor_key(key)
             kwargs[arg_name] = input_tensor_dict.pop(key.tensor_name)[0]
 
-            ##########################################
-            # Brandon DEBUG - remove before running experiment
-            ##########################################
-            if self.collaborator_name == 'col2@example.com' and arg_name == 'train_cutoff_time':
-                write_in = 75
-                kwargs[arg_name] = write_in
-                self.logger.critical(f"\n###########\nREMOVE ME Brandon DEBUG - setting col2 train_cutoff to {write_in}s\n##############\n")
-
         global_output_tensor_dict, local_output_tensor_dict = func(
             col_name=self.collaborator_name,
             round_num=round_number,
