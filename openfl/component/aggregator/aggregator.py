@@ -989,7 +989,7 @@ class Aggregator:
             for k, v in collaborator_weights_unnormalized.items()
         }
 
-        print(f"STDOUT_INFO: Aggregating metrics for task:{task_name} with col_weights:{collaborator_weight_dict}\n")
+        self.logger.info(f"Aggregating metrics for task:{task_name} with col_weights:{collaborator_weight_dict}\n")
 
         # The validation task should have just a couple tensors (i.e.
         # metrics) associated with it. Because each collaborator should
