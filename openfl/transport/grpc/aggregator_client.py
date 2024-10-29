@@ -456,7 +456,6 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
         
     @_handle_grpc_error
-    @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_get_(self, admin_name, timeout_in_seconds):
         """SetStragglerCuttoffTime RPC."""
         self._set_header(admin_name)
