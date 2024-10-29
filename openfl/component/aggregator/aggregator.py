@@ -205,13 +205,10 @@ class Aggregator:
         if self.dynamictaskargs is None or \
             task_name not in self.dynamictaskargs or \
             arg_name not in self.dynamictaskargs[task_name]:
-            self.logger.info(f"No such keys {task_name} and {arg_name} in:\n{self.dynamictaskargs}")
             raise ValueError(f"FL plan is not configured to set dynamic task arg:{arg_name} for task:{task_name}")
         elif 'min' in self.dynamictaskargs[task_name][arg_name] and value < self.dynamictaskargs[task_name][arg_name]['min']:
-            self.logger.info(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is less than the minimum configured in the plan:{self.dynamictaskargs[task_name][arg_name]['min']}")
             raise ValueError(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is less than the minimum configured in the plan:{self.dynamictaskargs[task_name][arg_name]['min']}")
         elif 'max' in self.dynamictaskargs[task_name][arg_name]  and value > self.dynamictaskargs[task_name][arg_name]['max']:
-            self.logger.info(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is greater than the maximum configured in the plan:{self.dynamictaskargs[task_name][arg_name]['max']}")
             raise ValueError(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is greater than the maximum configured in the plan:{self.dynamictaskargs[task_name][arg_name]['max']}")
         else:
             self.dynamictaskargs[task_name][arg_name]['value'] = value
