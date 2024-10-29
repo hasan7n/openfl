@@ -442,7 +442,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             context: The gRPC context
 
         """
-        self.validate_admin(request, context, "SetDynamicTaskArg") 
+        self.validate_admin(request, context, "GetDynamicTaskArg") 
         self.check_admin_request(request)
         admin_name = request.header.sender
         value_dict = self.aggregator.get_dynamic_task_arg(request.task_name, request.arg_name)
