@@ -259,7 +259,7 @@ def get_dynamic_task_arg(plan, admin_name, task_name, arg_name):
     help="The value for the next round",
 )
 def set_dynamic_task_arg(plan, admin_name, task_name, arg_name, value):
-    """Get the current and next values of a dynamic task arg."""
+    """Set the current and next values of a dynamic task arg."""
     from pathlib import Path
 
     from openfl.federated import Plan
