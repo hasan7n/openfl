@@ -54,3 +54,11 @@ class Admin:
     def connectivity_check(self):
         self.logger.info("Checking connectivity...")
         self.client.connectivity_check(self.admin_name)
+
+    def get_dynamic_task_arg(self, task_name, arg_name):
+        self.logger.info(f"Getting dynamic task arg {task_name}/{arg_name}...")
+        return self.client.admin_get_dynamic_task_arg(self.admin_name, task_name, arg_name)
+
+    def set_dynamic_task_arg(self, task_name, arg_name, value):
+        self.logger.info(f"Setting dynamic task arg {task_name}/{arg_name} to {value}...")
+        return self.client.admin_set_dynamic_task_arg(self.admin_name, task_name, arg_name, value)

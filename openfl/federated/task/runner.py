@@ -78,7 +78,7 @@ class TaskRunner:
 
         self.data_loader = data_loader
 
-    def get_train_data_size(self):
+    def get_train_data_size(self, **kwargs):
         """
         Get the number of training examples.
 
@@ -89,7 +89,7 @@ class TaskRunner:
         """
         return self.data_loader.get_train_data_size()
 
-    def get_valid_data_size(self):
+    def get_valid_data_size(self, **kwargs):
         """
         Get the number of examples.
 
