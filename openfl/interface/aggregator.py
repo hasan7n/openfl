@@ -3,6 +3,7 @@
 """Aggregator module."""
 
 import sys
+import yaml
 from logging import getLogger
 
 from click import echo
@@ -31,12 +32,15 @@ def aggregator(context):
         help='Federated learning plan [plan/plan.yaml]',
         default='plan/plan.yaml',
         type=ClickPath(exists=True))
+@option('-o', '--output-restart-config', required=False,
+        help='Output shutdown config, to be used by an orchestrator [shutdown_config.yaml]',
+        default='shutdown_config.yaml')
 @option('-c', '--authorized_cols', required=False,
         help='Authorized collaborator list [plan/cols.yaml]',
         default='plan/cols.yaml', type=ClickPath(exists=True))
 @option('-s', '--secure', required=False,
         help='Enable Intel SGX Enclave', is_flag=True, default=False)
-def start_(plan, authorized_cols, secure):
+def start_(plan, output_restart_config, authorized_cols, secure):
     """Start the aggregator service."""
     from pathlib import Path
 
@@ -44,6 +48,9 @@ def start_(plan, authorized_cols, secure):
 
     if is_directory_traversal(plan):
         echo('Federated learning plan path is out of the openfl workspace scope.')
+        sys.exit(1)
+    if is_directory_traversal(output_shutdown_config):
+        echo('Output shutdown config path is out of the openfl workspace scope.')
         sys.exit(1)
     if is_directory_traversal(authorized_cols):
         echo('Authorized collaborator list file path is out of the openfl workspace scope.')
@@ -53,8 +60,15 @@ def start_(plan, authorized_cols, secure):
                       cols_config_path=Path(authorized_cols).absolute())
 
     logger.info('🧿 Starting the Aggregator Service.')
+    parent_directory = Path(output_restart_config).parent
+    parent_directory.mkdir(parents=True, exist_ok=True)
+    while True:
+        restart_config = plan.get_server(new_server=True).serve()
+        if not restart_config["restart"] or restart_config["restart_process"]:
+            break
+    with open(output_restart_config, "w") as f:
+        yaml.safe_dump(restart_config, f)
 
-    plan.get_server().serve()
 
 
 @aggregator.command(name='generate-cert-request')

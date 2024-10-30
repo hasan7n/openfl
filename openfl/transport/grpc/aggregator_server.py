@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from random import random
 from multiprocessing import cpu_count
 from time import sleep
+import os
 
 from grpc import server
 from grpc import ssl_server_credentials
@@ -60,7 +61,11 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.private_key = private_key
         self.server = None
         self.server_credentials = None
-
+        self.restart_config = {
+            "restart": False,
+            "restart_process": False,
+            "grpc_trace": os.environ.get("GRPC_TRACE", None) is not None
+        }
         self.logger = logging.getLogger(__name__)
 
     def validate_collaborator(self, request, context):
@@ -416,6 +421,96 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             header=self.get_header(admin_name)
         )
 
+    def GetAggregatorLogs(self, request, context):  # NOQA:N802
+        """
+        Request logs.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "GetAggregatorLogs")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        # HK-TODO: maybe logs memory cost will double. Any better idea?
+        proto = aggregator_pb2.AggregatorLogs(
+            header=self.get_header(admin_name),
+            logs=self.aggregator.get_logs()
+        )
+        return utils.proto_to_datastream(proto, self.logger)
+
+    def RestartProcess(self, request, context):  # NOQA:N802
+        """
+        Request to restart the aggregator process. For this to work, an orchestrator must be
+        running openfl.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "RestartProcess")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        self.restart_config["restart_process"] = True
+        return aggregator_pb2.RestartProcessResponse(
+            header=self.get_header(admin_name)
+        )
+
+    def Restart(self, request, context):  # NOQA:N802
+        """
+        Request to restart the aggregator.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "Restart")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        self.restart_config["restart"] = True
+        return aggregator_pb2.RestartResponse(
+            header=self.get_header(admin_name)
+        )
+
+    def SetVerboseLogging(self, request, context):  # NOQA:N802
+        """
+        Request to set verbose logging when the aggregator is later restarted.
+        For this to work, an orchestrator must be running openfl.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "SetVerboseLogging")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        self.restart_config["grpc_trace"] = True
+        return aggregator_pb2.SetVerboseLoggingResponse(
+            header=self.get_header(admin_name)
+        )
+
+    def UnSetVerboseLogging(self, request, context):  # NOQA:N802
+        """
+        Request to unset verbose logging when the aggregator is later restarted.
+        For this to work, an orchestrator must be running openfl.
+
+        Args:
+            request: The gRPC message request
+            context: The gRPC context
+
+        """
+        self.validate_admin(request, context, "UnSetVerboseLogging")
+        self.check_admin_request(request)
+        admin_name = request.header.sender
+        self.restart_config["grpc_trace"] = False
+        return aggregator_pb2.UnSetVerboseLoggingResponse(
+            header=self.get_header(admin_name)
+        )
+
     def get_server(self):
         """Return gRPC server."""
         self.server = server(ThreadPoolExecutor(max_workers=cpu_count()),
@@ -458,11 +553,15 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
 
         self.logger.info('Starting Aggregator gRPC Server')
         self.server.start()
-
+        interrupted = False
         try:
-            while not self.aggregator.all_quit_jobs_sent():
+            jobs_sent = self.aggregator.all_quit_jobs_sent()
+            while not jobs_sent and not self.restart_config["restart"] and not self.restart_config["restart_process"]:
                 sleep(5)
         except KeyboardInterrupt:
-            pass
-
-        self.server.stop(0)
+            interrupted = True
+        if jobs_sent or interrupted:
+            self.server.stop(0)
+        else:
+            self.server.stop(60)
+        return self.restart_config

@@ -454,3 +454,64 @@ class AggregatorGRPCClient:
         )
         response = self.stub.SetStragglerCuttoffTime(request)
         self.validate_response(response, admin_name)
+
+    @_handle_grpc_error
+    @_atomic_connection
+    def get_aggregator_logs(self, admin_name):
+        """get aggregator logs."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.GetAggregatorLogsRequest(
+            header=self.header,
+        )
+        response = self.stub.GetAggregatorLogs(request)
+
+        proto = aggregator_pb2.AggregatorLogs()
+        proto = utils.datastream_to_proto(proto, response)
+
+        # also do other validation, like on the round_number
+        self.validate_response(proto, admin_name)
+        return proto.logs
+
+    @_handle_grpc_error
+    @_atomic_connection
+    def restart(self, admin_name):
+        """request to restart the aggregator."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.RestartRequest(
+            header=self.header,
+        )
+        response = self.stub.Restart(request)
+        self.validate_response(response, admin_name)
+
+    @_handle_grpc_error
+    @_atomic_connection
+    def restart_process(self, admin_name):
+        """request to restart the aggregator process."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.RestartProcessRequest(
+            header=self.header,
+        )
+        response = self.stub.RestartProcess(request)
+        self.validate_response(response, admin_name)
+
+    @_handle_grpc_error
+    @_atomic_connection
+    def set_verbose_logging(self, admin_name):
+        """request to set verbose logging in the aggregator."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.SetVerboseLoggingRequest(
+            header=self.header,
+        )
+        response = self.stub.SetVerboseLogging(request)
+        self.validate_response(response, admin_name)
+
+    @_handle_grpc_error
+    @_atomic_connection
+    def unset_verbose_logging(self, admin_name):
+        """request to unset verbose logging in the aggregator."""
+        self._set_header(admin_name)
+        request = aggregator_pb2.UnSetVerboseLoggingRequest(
+            header=self.header,
+        )
+        response = self.stub.UnSetVerboseLogging(request)
+        self.validate_response(response, admin_name)

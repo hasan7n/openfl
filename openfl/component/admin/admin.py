@@ -54,3 +54,28 @@ class Admin:
     def connectivity_check(self):
         self.logger.info("Checking connectivity...")
         self.client.connectivity_check(self.admin_name)
+
+    def get_aggregator_logs(self):
+        self.logger.info("Getting aggregator logs...")
+        logs = self.client.get_aggregator_logs(self.admin_name)
+        return logs
+
+    def restart(self):
+        self.logger.info("Restarting aggregator...")
+        self.client.restart(self.admin_name)
+
+    def restart_process(self):
+        self.logger.info("Restarting aggregator process...")
+        self.client.restart_process(self.admin_name)
+
+    def set_verbose_logging(self):
+        self.logger.info(
+            "Requesting to set verbose logging in the aggregator..."
+        )
+        self.client.set_verbose_logging(self.admin_name)
+
+    def unset_verbose_logging(self):
+        self.logger.info(
+            "Requesting to unset verbose logging in the aggregator..."
+        )
+        self.client.unset_verbose_logging(self.admin_name)

@@ -6,7 +6,7 @@ from copy import deepcopy
 import time
 import queue
 from logging import getLogger
-
+import os
 from openfl.interface.aggregation_functions import WeightedAverage
 from openfl.component.straggler_handling_functions import CutoffTimeBasedStragglerHandling
 from openfl.databases import TensorDB
@@ -149,6 +149,13 @@ class Aggregator:
         # new/dropped collaborators
         self.collaborators_to_add = []
         self.collaborators_to_remove = []
+
+    def get_logs(self):
+        filename = os.environ.get("OPENFL_DEBUG_FILE", None)
+        if filename:
+            with open(filename) as f:
+                return f.readlines()[-80000:]
+        return []
 
     def _load_initial_tensors(self):
         """

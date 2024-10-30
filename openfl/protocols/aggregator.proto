@@ -21,6 +21,12 @@ service Aggregator {
   rpc GetExperimentStatus(GetExperimentStatusRequest) returns (GetExperimentStatusResponse) {}
   rpc SetStragglerCuttoffTime(SetStragglerCuttoffTimeRequest) returns (SetStragglerCuttoffTimeResponse) {}
   rpc ConnectivityCheck(ConnectivityCheckRequest) returns (ConnectivityCheckResponse) {}
+  rpc GetAggregatorLogs(GetAggregatorLogsRequest) returns (stream DataStream) {}
+  rpc Restart(RestartRequest) returns (RestartResponse) {}
+  rpc RestartProcess(RestartProcessRequest) returns (RestartProcessResponse) {}
+  rpc SetVerboseLogging(SetVerboseLoggingRequest) returns (SetVerboseLoggingResponse) {}
+  rpc UnSetVerboseLogging(UnSetVerboseLoggingRequest) returns (UnSetVerboseLoggingResponse) {}
+
 }
 
 message MessageHeader {
@@ -184,5 +190,47 @@ message ConnectivityCheckRequest {
 }
 
 message ConnectivityCheckResponse {
+  MessageHeader header = 1;
+}
+
+message GetAggregatorLogsRequest {
+  MessageHeader header = 1;
+}
+
+// we'll actually send this as a data stream
+message AggregatorLogs {
+  MessageHeader header = 1;
+  repeated string logs = 2;
+}
+
+message RestartRequest {
+  MessageHeader header = 1;
+}
+
+message RestartResponse {
+  MessageHeader header = 1;
+}
+
+message RestartProcessRequest {
+  MessageHeader header = 1;
+}
+
+message RestartProcessResponse {
+  MessageHeader header = 1;
+}
+
+message SetVerboseLoggingRequest {
+  MessageHeader header = 1;
+}
+
+message SetVerboseLoggingResponse {
+  MessageHeader header = 1;
+}
+
+message UnSetVerboseLoggingRequest {
+  MessageHeader header = 1;
+}
+
+message UnSetVerboseLoggingResponse {
   MessageHeader header = 1;
 }

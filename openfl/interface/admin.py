@@ -184,3 +184,172 @@ def set_straggler_cutoff_time(plan, admin_name, timeout_in_seconds):
 
     plan = Plan.parse(plan_config_path=Path(plan).absolute())
     plan.get_admin(admin_name).set_straggler_cutoff_time(timeout_in_seconds)
+
+
+@admin.command(name="get_aggregator_logs")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+@option(
+    "-o",
+    "--output_file",
+    required=False,
+    default=None,
+    help="File path for saving the status. Defaults to STDOUT.",
+)
+def get_aggregator_logs(plan, admin_name, output_file):
+    """Get logs of an experiment"""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    logs_list = plan.get_admin(admin_name).get_aggregator_logs()
+    if output_file:
+        with open(output_file, "w") as f:
+            for log in logs_list:
+                f.write(log)
+    else:
+        for log in logs_list:
+            echo(log)
+
+
+@admin.command(name="restart")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+def restart(plan, admin_name):
+    """Restart aggregator"""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    plan.get_admin(admin_name).restart()
+
+
+@admin.command(name="restart_process")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+def restart(plan, admin_name):
+    """Restart aggregator process"""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    plan.get_admin(admin_name).restart_process()
+
+
+@admin.command(name="set_aggregator_verbose_logging")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+def set_aggregator_verbose_logging(plan, admin_name):
+    """set_aggregator_verbose_logging"""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    plan.get_admin(admin_name).set_aggregator_verbose_logging()
+
+
+@admin.command(name="unset_aggregator_verbose_logging")
+@option(
+    "-p",
+    "--plan",
+    required=False,
+    help="Federated learning plan [plan/plan.yaml]",
+    default="plan/plan.yaml",
+    type=ClickPath(exists=True),
+)
+@option(
+    "-n",
+    "--admin_name",
+    required=True,
+    help="The certified common name of the admin",
+)
+def unset_aggregator_verbose_logging(plan, admin_name):
+    """unset_aggregator_verbose_logging"""
+    from pathlib import Path
+
+    from openfl.federated import Plan
+
+    if is_directory_traversal(plan):
+        echo(
+            "Federated learning plan path is out of the openfl workspace scope."
+        )
+        sys.exit(1)
+
+    plan = Plan.parse(plan_config_path=Path(plan).absolute())
+    plan.get_admin(admin_name).unset_aggregator_verbose_logging()
