@@ -267,6 +267,9 @@ class Collaborator:
         # MICAH CHANGE: pop dynamic args and add to kwargs
         for key in dynamicarg_tensor_keys:
             arg_name = arg_name_from_dynamic_task_arg_tensor_key(key)
+            # TODO: we might want to check for an arg collision, i.e.
+            # if kwargs already contains "arg_name". Or document that 
+            # dynamic args take precedence.
             kwargs[arg_name] = input_tensor_dict.pop(key.tensor_name)[0]
 
         global_output_tensor_dict, local_output_tensor_dict = func(
