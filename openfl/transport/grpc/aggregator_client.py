@@ -123,7 +123,7 @@ def _resend_data_on_reconnection(func):
                     self.logger.info(
                         f"Attempting to resend data request to aggregator at {self.uri}"
                     )
-                elif e.code() == grpc.StatusCode.UNAUTHENTICATED:
+                elif e.code() in [grpc.StatusCode.UNAUTHENTICATED, grpc.StatusCode.NOT_FOUND]:
                     raise
                 continue
             break

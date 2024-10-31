@@ -241,9 +241,12 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         round_number = request.round_number
         report = request.report
         tags = tuple(request.tags)
-
-        named_tensor = self.aggregator.get_aggregated_tensor(
-            collaborator_name, tensor_name, round_number, report, tags, require_lossless)
+        try:
+            named_tensor = self.aggregator.get_aggregated_tensor(
+                collaborator_name, tensor_name, round_number, report, tags, require_lossless
+            )
+        except ValueError as e:
+            context.abort(StatusCode.NOT_FOUND, str(e))
 
         return aggregator_pb2.GetAggregatedTensorResponse(
             header=self.get_header(collaborator_name),
