@@ -57,7 +57,6 @@ class Aggregator:
                  db_store_rounds=1,
                  write_logs=False,
                  log_metric_callback=None,
-                 dynamictaskargs=None,
                  **kwargs):
         """Initialize."""
         self.round_number = 0
@@ -94,8 +93,6 @@ class Aggregator:
         self.write_logs = write_logs
         self.log_metric_callback = log_metric_callback
 
-        self.dynamictaskargs = dynamictaskargs
-
         self.straggler_handling_policy = (
             straggler_handling_policy or CutoffTimeBasedStragglerHandling()
         )
@@ -128,9 +125,6 @@ class Aggregator:
         else:
             self.model: base_pb2.ModelProto = utils.load_proto(self.init_state_path)
             self._load_initial_tensors()  # keys are TensorKeys
-
-        # load in the initial dynamic task args
-        self._write_dynamic_task_args()
 
         self.collaborator_tensor_results = {}  # {TensorKey: nparray}}
 
@@ -199,45 +193,6 @@ class Aggregator:
         # all initial model tensors are loaded here
         self.tensor_db.cache_tensor(tensor_key_dict)
         self.logger.debug(f'This is the initial tensor_db: {self.tensor_db}')
-
-    # MICAH CHANGE BEGIN: new functions for dynamic task args
-    def set_dynamic_task_arg(self, task_name, arg_name, value):
-        if self.dynamictaskargs is None or \
-            task_name not in self.dynamictaskargs or \
-            arg_name not in self.dynamictaskargs[task_name]:
-            raise ValueError(f"FL plan is not configured to set dynamic task arg:{arg_name} for task:{task_name}")
-        elif 'min' in self.dynamictaskargs[task_name][arg_name] and value < self.dynamictaskargs[task_name][arg_name]['min']:
-            raise ValueError(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is less than the minimum configured in the plan:{self.dynamictaskargs[task_name][arg_name]['min']}")
-        elif 'max' in self.dynamictaskargs[task_name][arg_name]  and value > self.dynamictaskargs[task_name][arg_name]['max']:
-            raise ValueError(f"Value:{value} for dynamic task arg:{arg_name} for task:{task_name} is greater than the maximum configured in the plan:{self.dynamictaskargs[task_name][arg_name]['max']}")
-        else:
-            self.dynamictaskargs[task_name][arg_name]['value'] = value
-
-    def get_dynamic_task_arg(self, task_name, arg_name):
-        if self.dynamictaskargs is None or \
-            task_name not in self.dynamictaskargs or \
-            arg_name not in self.dynamictaskargs[task_name]:
-            self.logger.info(f"No such keys {task_name} and {arg_name} in:\n{self.dynamictaskargs}")
-            raise ValueError(f"FL plan is not configured to set dynamic task arg:{arg_name} for task:{task_name}")
-        return {
-            'current_value': self.tensor_db.get_dynamic_arg(task_name, arg_name, self.round_number, self.uuid), 
-            'next_value': self.dynamictaskargs[task_name][arg_name]['value'],
-        }
-
-    def _write_dynamic_task_args(self):
-        if self.dynamictaskargs is None:
-            return
-
-        for task_name in self.dynamictaskargs.keys():
-            for arg_name in self.dynamictaskargs[task_name]:
-                self.tensor_db.cache_dynamic_arg(
-                    task_name=task_name,
-                    arg_name=arg_name,
-                    agg_id=self.uuid,
-                    round_number=self.round_number,
-                    value=self.dynamictaskargs[task_name][arg_name]['value']
-                )
-    # MICAH CHANGE END: new functions for dynamic task args
 
     def _save_model(self, round_number, file_path):
         """
@@ -988,8 +943,6 @@ class Aggregator:
             for k, v in collaborator_weights_unnormalized.items()
         }
 
-        self.logger.debug(f"Aggregating metrics for task:{task_name} with col_weights:{collaborator_weight_dict}\n")
-
         # The validation task should have just a couple tensors (i.e.
         # metrics) associated with it. Because each collaborator should
         # have sent the same tensor list, we can use the first
@@ -1221,9 +1174,6 @@ class Aggregator:
         self.tensor_db.clean_up(self.db_store_rounds)
         # Reset straggler handling policy for the next round.
         self.straggler_handling_policy.reset_policy_for_round()
-
-        # MICAH CHANGE: set dynamic task arg values
-        self._write_dynamic_task_args()
 
         collaborators_changed = False
         if (len(self.collaborators_to_add) + len(self.collaborators_to_remove)) > 0:
