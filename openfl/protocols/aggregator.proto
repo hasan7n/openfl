@@ -167,6 +167,7 @@ message ExperimentStatus {
   repeated string to_remove_next_round = 6;
   repeated string available_collaborators = 7;
   repeated string assigned_collaborators = 8;
+  repeated GetMetricStreamResponse metrics = 9;
 }
 
 message GetExperimentStatusResponse {

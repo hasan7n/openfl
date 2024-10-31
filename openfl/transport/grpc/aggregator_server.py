@@ -353,6 +353,8 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         to_remove_next_round = status_dict["to_remove_next_round"]
         available_collaborators = status_dict["available_collaborators"]
         assigned_collaborators = status_dict["assigned_collaborators"]
+        metrics = status_dict["metrics"]
+        metrics = [aggregator_pb2.GetMetricStreamResponse(**metric) for metric in metrics]
 
         collaborators_progress = []
         for collaborator_name in collaborators:
@@ -369,6 +371,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             )
             collaborators_progress.append(collaborator_progress_pb)
 
+
         return aggregator_pb2.ExperimentStatus(
             round=round_num,
             round_start=round_start,
@@ -377,7 +380,8 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             to_add_next_round=to_add_next_round,
             to_remove_next_round=to_remove_next_round,
             available_collaborators=available_collaborators,
-            assigned_collaborators=assigned_collaborators
+            assigned_collaborators=assigned_collaborators,
+            metrics=metrics,
         )
 
     def GetExperimentStatus(self, request, context):  # NOQA:N802

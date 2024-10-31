@@ -187,6 +187,17 @@ def convert_experiment_status_proto_to_dict(response):
     def convert_task_end_times(tasks):
         return [{"task_name": task.task_name, "end_time": task.end_time} for task in tasks]
 
+    def convert_metrics(metrics):
+        return [
+            {
+                "metric_origin": metric.metric_origin,
+                "task_name": metric.task_name,
+                "metric_name": metric.metric_name,
+                "metric_value": metric.metric_value,
+                "round": metric.round,
+            } for metric in metrics
+        ]
+
     def convert_collaborators_progress(collaborators):
         return [
             {
@@ -209,7 +220,8 @@ def convert_experiment_status_proto_to_dict(response):
             "to_add_next_round": list(round_status.to_add_next_round),
             "to_remove_next_round": list(round_status.to_remove_next_round),
             "available_collaborators": list(round_status.available_collaborators),
-            "assigned_collaborators": list(round_status.assigned_collaborators)
+            "assigned_collaborators": list(round_status.assigned_collaborators),
+            "metrics": convert_metrics(round_status.metrics),
         }
 
     current_round_dict = convert_experiment_status(response.current_round)
