@@ -602,6 +602,44 @@ class Aggregator:
         task_key = TaskResultKey(task_name, collaborator, round_num)
         return task_key in self.collaborator_tasks_results
 
+    def __store_straggler_end_time(self, collaborator_name, round_number, task_name):
+        # NOTE: this is not accurate, race conditions can happen, and round number could have
+        # been already incremented. A whole refactoring of the aggregator object should be done
+        # at some point
+        if round_number >= self.round_number:
+            return
+
+        # Avoid storing the end time if the round number is equal to the current
+        # because it is prone to race conditions that can cause TypeErrors
+        # when subtracting the self.first_col_start
+        """
+        if round_number == self.round_number:
+            if self.first_col_start is None:
+                # This means we are currently during an end of round check! round
+                # status is already stored in self.rounds_status
+                pass
+            else:
+                # Race condition could also happen hear, and self.first_col_start
+                # may get set to None right now, causing a TypeError
+                if collaborator_name not in self.collaborator_end_time:
+                    self.collaborator_end_time[collaborator_name] = {}
+                self.collaborator_end_time[collaborator_name][task_name] = (
+                    time.time() - self.first_col_start)
+        """
+        if round_number >= len(self.rounds_status):
+            # Also avoid indexerrors in case there is a race condition I am
+            # not thinking about
+            return
+        if self.rounds_status[round_number]["round"] != round_number:
+            # Also avoid modifying data in a wrong way in case previous list.appends
+            # were messed up due to race conditions
+            return
+
+        if collaborator_name not in self.rounds_status[round_number]["end_times"]:
+            self.rounds_status[round_number]["end_times"][collaborator_name] = {}
+        self.rounds_status[round_number]["end_times"][collaborator_name][task_name] = (
+            time.time() - self.rounds_status[round_number]["round_start"])
+
     def send_local_task_results(self, collaborator_name, round_number, task_name,
                                 data_size, named_tensors):
         """
@@ -623,6 +661,11 @@ class Aggregator:
                 f'STRAGGLER: Collaborator {collaborator_name} is reporting results '
                 f'after task {task_name} has finished.'
             )
+            try:
+                self.__store_straggler_end_time(collaborator_name, round_number, task_name)
+            except Exception:
+                # Avoid any errors that could be introduced by this change
+                pass
             return
 
         if self.round_number != round_number:
@@ -630,6 +673,11 @@ class Aggregator:
                 f'Collaborator {collaborator_name} is reporting results'
                 f' for the wrong round: {round_number}. Ignoring...'
             )
+            try:
+                self.__store_straggler_end_time(collaborator_name, round_number, task_name)
+            except Exception:
+                # Avoid any errors that could be introduced by this change
+                pass
             return
 
         self.logger.info(
