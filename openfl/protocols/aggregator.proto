@@ -172,8 +172,7 @@ message ExperimentStatus {
 
 message GetExperimentStatusResponse {
   MessageHeader header = 1;
-  ExperimentStatus current_round = 2;
-  optional ExperimentStatus previous_round = 3;
+  repeated ExperimentStatus rounds = 2;
 }
 
 message SetStragglerCuttoffTimeResponse {

@@ -224,13 +224,5 @@ def convert_experiment_status_proto_to_dict(response):
             "metrics": convert_metrics(round_status.metrics),
         }
 
-    current_round_dict = convert_experiment_status(response.current_round)
-    previous_round_dict = None
-    if response.HasField("previous_round"):
-        previous_round_dict = convert_experiment_status(response.previous_round)
-    response_dict = {
-        "previous_round": previous_round_dict,
-        "current_round": current_round_dict,
-    }
-
-    return response_dict
+    response_dicts = [convert_experiment_status(round_) for round_ in response.rounds]
+    return response_dicts

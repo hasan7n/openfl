@@ -141,7 +141,7 @@ class Aggregator:
         # this is for monitoring
         self.collaborator_start_time = {}  # {col_name: time relative to round start}
         self.collaborator_end_time = {}  # {col_name: {task_name: time relative to round start}}
-        self.previous_round_status = {}  # see self._get_round_status
+        self.rounds_status = []  # All rounds statuses
         self.first_col_start = None
 
         # for admin authorization
@@ -1019,8 +1019,7 @@ class Aggregator:
         Returns experiment status for the current and previous rounds.
         """
         current_round_status = self._get_round_status()
-        previous_round_status = self.previous_round_status
-        return current_round_status, previous_round_status
+        return self.rounds_status + [current_round_status]
 
     def add_collaborator(self, collaborator_label, collaborator_cn):
         """
@@ -1118,7 +1117,7 @@ class Aggregator:
             self._compute_validation_related_task_metrics(task_name)
 
         # Save the round status
-        self.previous_round_status = deepcopy(self._get_round_status())
+        self.rounds_status.append(deepcopy(self._get_round_status()))
 
         # Reset monitoring attributes
         self.collaborator_start_time = {}

@@ -411,11 +411,10 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.validate_admin(request, context, "GetExperimentStatus")
         self.check_admin_request(request)
         admin_name = request.header.sender
-        current_round, previous_round = self.aggregator.get_experiment_status()
+        rounds = self.aggregator.get_experiment_status()
         return aggregator_pb2.GetExperimentStatusResponse(
             header=self.get_header(admin_name),
-            current_round=self._prepare_experiment_status_pb(current_round),
-            previous_round=self._prepare_experiment_status_pb(previous_round)
+            rounds=[self._prepare_experiment_status_pb(round_) for round_ in rounds]
         )
 
     def SetStragglerCuttoffTime(self, request, context):  # NOQA:N802
