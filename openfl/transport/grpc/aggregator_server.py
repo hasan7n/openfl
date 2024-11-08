@@ -195,7 +195,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         try:
             self.check_request(request)
         except ValueError as e:
-            context.abort(StatusCode.NOT_FOUND, str(e))
+            context.abort(StatusCode.UNAUTHENTICATED, str(e))
         collaborator_name = request.header.sender
         tasks, round_number, sleep_time, time_to_quit = self.aggregator.get_tasks(
             request.header.sender)
@@ -240,7 +240,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         try:
             self.check_request(request)
         except ValueError as e:
-            context.abort(StatusCode.NOT_FOUND, str(e))
+            context.abort(StatusCode.UNAUTHENTICATED, str(e))
         collaborator_name = request.header.sender
         tensor_name = request.tensor_name
         require_lossless = request.require_lossless
@@ -252,7 +252,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
                 collaborator_name, tensor_name, round_number, report, tags, require_lossless
             )
         except ValueError as e:
-            context.abort(StatusCode.NOT_FOUND, str(e))
+            context.abort(StatusCode.UNAUTHENTICATED, str(e))
 
         return aggregator_pb2.GetAggregatedTensorResponse(
             header=self.get_header(collaborator_name),
@@ -282,7 +282,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         try:
             self.check_request(proto)
         except ValueError as e:
-            context.abort(StatusCode.NOT_FOUND, str(e))
+            context.abort(StatusCode.UNAUTHENTICATED, str(e))
 
         collaborator_name = proto.header.sender
         task_name = proto.task_name
@@ -310,7 +310,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         try:
             self.check_request(request)
         except ValueError as e:
-            context.abort(StatusCode.NOT_FOUND, str(e))
+            context.abort(StatusCode.UNAUTHENTICATED, str(e))
         collaborator_name = request.header.sender
         self.logger.info(f'{collaborator_name} checked connectivity and succeeded.')
         return aggregator_pb2.ConnectivityCheckResponse(
