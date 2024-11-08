@@ -1127,7 +1127,6 @@ class Aggregator:
 
         # Once all of the task results have been processed
         self._end_of_round_check_done[self.round_number] = True
-        self.round_number += 1
 
         # add new collaborators to available list as needed
         # MICAH TODO: should this be label or CN? Need to check with Hasan
@@ -1151,7 +1150,7 @@ class Aggregator:
         # TODO: this should really be an event mechanism rather than hardcoded callbacks
         self.assigner.end_of_round(available_collaborators=self.available_collaborators,
                                    stragglers=self.stragglers,
-                                   next_round=self.round_number)
+                                   next_round=self.round_number+1)
     
         self.logger.info(f'Collaborators given assignments in the next round: {self.assigner.get_assigned_collaborators()}')
 
@@ -1175,12 +1174,13 @@ class Aggregator:
         if self._time_to_quit():
             self.logger.info('Experiment Completed. Cleaning up...')
         else:
-            self.logger.info(f'Starting round {self.round_number}...')
+            self.logger.info(f'Starting round {self.round_number+1}...')
 
         # Cleaning tensor db
         self.tensor_db.clean_up(self.db_store_rounds)
         # Reset straggler handling policy for the next round.
         self.straggler_handling_policy.reset_policy_for_round()
+        self.round_number += 1
 
         collaborators_changed = False
         if (len(self.collaborators_to_add) + len(self.collaborators_to_remove)) > 0:
