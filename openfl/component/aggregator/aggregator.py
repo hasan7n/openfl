@@ -1251,7 +1251,6 @@ class Aggregator:
         # TODO: this should really be a clean "round state reset" function
         # such a state object would also be a clean object to pass to an event handler
         # resetting stragglers for task for a new round
-        self.straggler_handling_policy_started_for_round = False
         self.stragglers = []
         # resetting available collaborators for a new round
         self.available_collaborators = []
@@ -1275,6 +1274,7 @@ class Aggregator:
         # Reset straggler handling policy for the next round.
         self.straggler_handling_policy.reset_policy_for_round()
         self.round_number += 1
+        self.straggler_handling_policy_started_for_round = False
 
         # MICAH CHANGE: set dynamic task arg values
         self._write_dynamic_task_args()
