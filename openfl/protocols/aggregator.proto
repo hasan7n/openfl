@@ -18,7 +18,7 @@ service Aggregator {
     returns (GetExperimentDescriptionResponse) {}
   rpc AddCollaborator(AddCollaboratorRequest) returns (AddCollaboratorResponse) {}
   rpc RemoveCollaborator(RemoveCollaboratorRequest) returns (RemoveCollaboratorResponse) {}
-  rpc GetExperimentStatus(GetExperimentStatusRequest) returns (GetExperimentStatusResponse) {}
+  rpc GetExperimentStatus(GetExperimentStatusRequest) returns (stream DataStream) {}
   rpc SetStragglerCuttoffTime(SetStragglerCuttoffTimeRequest) returns (SetStragglerCuttoffTimeResponse) {}
   rpc ConnectivityCheck(ConnectivityCheckRequest) returns (ConnectivityCheckResponse) {}
   rpc SetDynamicTaskArg(SetDynamicTaskArgRequest) returns (SetDynamicTaskArgResponse) {}
@@ -172,6 +172,7 @@ message ExperimentStatus {
   repeated GetMetricStreamResponse metrics = 9;
 }
 
+// This will be returned as a data stream for GetExperimentStatus rpc
 message GetExperimentStatusResponse {
   MessageHeader header = 1;
   repeated ExperimentStatus rounds = 2;

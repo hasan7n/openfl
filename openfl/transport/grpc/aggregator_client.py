@@ -440,6 +440,12 @@ class AggregatorGRPCClient:
         self._set_header(admin_name)
         request = aggregator_pb2.GetExperimentStatusRequest(header=self.header)
         response = self.stub.GetExperimentStatus(request)
+        try:
+            proto = aggregator_pb2.GetExperimentStatusResponse()
+            response = utils.datastream_to_proto(proto, response)
+        except RuntimeError:
+            raise RuntimeError('Empty/invalid stream message')
+
         self.validate_response(response, admin_name)
         status_dict = convert_experiment_status_proto_to_dict(response)
         return status_dict
