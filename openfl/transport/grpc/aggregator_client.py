@@ -125,6 +125,7 @@ def _resend_data_on_reconnection(func):
                     )
                 elif e.code() in [grpc.StatusCode.UNAUTHENTICATED, grpc.StatusCode.NOT_FOUND]:
                     raise
+                self.logger.info(f'Sent request, got {e.code()}')
                 continue
             break
         return response
