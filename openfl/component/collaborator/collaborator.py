@@ -146,6 +146,7 @@ class Collaborator:
             else:
                 self.logger.info(f'Received the following tasks: {tasks}')
                 for task in tasks:
+                    self.logger.info(f'Doing task {task}')
                     self.do_task(task, round_number)
 
                 # Cleaning tensor db
@@ -189,6 +190,7 @@ class Collaborator:
         """Do the specified task."""
         # map this task to an actual function name and kwargs
         if hasattr(self.task_runner, 'TASK_REGISTRY'):
+            self.logger.info('has task registry attribute')
             func_name = task.function_name
             task_name = task.name
             kwargs = {}
@@ -198,6 +200,7 @@ class Collaborator:
                 else:
                     kwargs['apply'] = 'global'
         else:
+            self.logger.info('does not have task registry attribute')
             if isinstance(task, str):
                 task_name = task
             else:
@@ -206,6 +209,7 @@ class Collaborator:
             kwargs = self.task_config[task_name]['kwargs']
 
         # this would return a list of what tensors we require as TensorKeys
+        self.logger.info('getting required tensor keys')
         required_tensorkeys_relative = self.task_runner.get_required_tensorkeys_for_function(
             func_name,
             **kwargs
@@ -237,12 +241,14 @@ class Collaborator:
 
         # print('Required tensorkeys = {}'.format(
         # [tk[0] for tk in required_tensorkeys]))
+        self.logger.info('get numpy dict for tensorkeys')
         input_tensor_dict = self.get_numpy_dict_for_tensorkeys(
             required_tensorkeys
         )
 
         # now we have whatever the model needs to do the task
         if hasattr(self.task_runner, 'TASK_REGISTRY'):
+            self.logger.info('has task registry 2')
             # New interactive python API
             # New `Core` TaskRunner contains registry of tasks
             func = self.task_runner.TASK_REGISTRY[func_name]
@@ -259,6 +265,7 @@ class Collaborator:
             else:
                 kwargs['device'] = 'cpu'
         else:
+            self.logger.info('does not have task registry 2')
             # TaskRunner subclassing API
             # Tasks are defined as methods of TaskRunner
             func = getattr(self.task_runner, func_name)
@@ -272,6 +279,7 @@ class Collaborator:
             # dynamic args take precedence.
             kwargs[arg_name] = input_tensor_dict.pop(key.tensor_name)[0]
 
+        self.logger.info(f'Running {func} ({func_name})')
         global_output_tensor_dict, local_output_tensor_dict = func(
             col_name=self.collaborator_name,
             round_num=round_number,
@@ -300,6 +308,7 @@ class Collaborator:
                             remotely. May be the product of other tensors
         """
         # try to get from the store
+        self.logger.info(f'get_data_for_tensorkey {tensor_key.tensor_name}')
         tensor_name, origin, round_number, report, tags = tensor_key
         self.logger.debug(f'Attempting to retrieve tensor {tensor_key} from local store')
         nparray = self.tensor_db.get_tensor_from_cache(tensor_key)
@@ -327,6 +336,7 @@ class Collaborator:
             # Determine whether there are additional compression related
             # dependencies.
             # Typically, dependencies are only relevant to model layers
+            self.logger.info('get tensorkey dependencies')
             tensor_dependencies = self.tensor_codec.find_dependencies(
                 tensor_key, self.delta_updates
             )
@@ -336,19 +346,23 @@ class Collaborator:
                 # of the model.
                 # If it exists locally, should pull the remote delta because
                 # this is the least costly path
+                self.logger.info('dependencies > 0')
                 prior_model_layer = self.tensor_db.get_tensor_from_cache(
                     tensor_dependencies[0]
                 )
                 if prior_model_layer is not None:
+                    self.logger.info('getting aggregator tensor from aggregator')
                     uncompressed_delta = self.get_aggregated_tensor_from_aggregator(
                         tensor_dependencies[1]
                     )
+                    self.logger.info('applying delta')
                     new_model_tk, nparray = self.tensor_codec.apply_delta(
                         tensor_dependencies[1],
                         uncompressed_delta,
                         prior_model_layer,
                         creates_model=True,
                     )
+                    self.logger.info('caching tensor')
                     self.tensor_db.cache_tensor({new_model_tk: nparray})
                 else:
                     self.logger.info('Count not find previous model layer.'
@@ -360,11 +374,13 @@ class Collaborator:
                     )
             elif 'model' in tags or 'dynamictaskarg' in tags:
                 # Pulling the model for the first time
+                self.logger.info('getting aggregator tensor from aggregator for dynamictaskarg')
                 nparray = self.get_aggregated_tensor_from_aggregator(
                     tensor_key,
                     require_lossless=True
                 )
         else:
+            self.logger.info(f'tensor key found {tensor_key.tensor_name}')
             self.logger.debug(f'Found tensor {tensor_key} in local TensorDB')
 
         return nparray
@@ -402,9 +418,11 @@ class Collaborator:
 
         # this translates to a numpy array and includes decompression, as
         # necessary
+        self.logger.info('got tensor. turning into numpy array')
         nparray = self.named_tensor_to_nparray(tensor)
 
         # cache this tensor
+        self.logger.info('caching tensor')
         self.tensor_db.cache_tensor({tensor_key: nparray})
 
         return nparray
