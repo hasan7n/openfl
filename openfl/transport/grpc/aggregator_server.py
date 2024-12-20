@@ -60,6 +60,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.private_key = private_key
         self.server = None
         self.server_credentials = None
+        self.threads_multiplier = kwargs.pop("threads_multiplier", 1)
 
         self.logger = logging.getLogger(__name__)
 
@@ -473,7 +474,8 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
 
     def get_server(self):
         """Return gRPC server."""
-        self.server = server(ThreadPoolExecutor(max_workers=cpu_count()),
+        max_workers = int(cpu_count()*self.threads_multiplier)
+        self.server = server(ThreadPoolExecutor(max_workers=max_workers),
                              options=channel_options)
 
         aggregator_pb2_grpc.add_AggregatorServicer_to_server(self, self.server)
