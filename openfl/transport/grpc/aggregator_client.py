@@ -129,7 +129,6 @@ def _resend_data_on_reconnection(func):
                         grpc.StatusCode.DEADLINE_EXCEEDED
                         ]:
                     raise
-                self.logger.info(f'Sent request, got {e.code()}')
                 continue
             break
         return response
