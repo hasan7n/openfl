@@ -6,6 +6,7 @@ from copy import deepcopy
 import time
 import queue
 from logging import getLogger
+from threading import Lock
 
 from openfl.interface.aggregation_functions import WeightedAverage
 from openfl.component.straggler_handling_functions import CutoffTimeBasedStragglerHandling
@@ -156,6 +157,9 @@ class Aggregator:
         # new/dropped collaborators
         self.collaborators_to_add = []
         self.collaborators_to_remove = []
+
+        # To prevent race condition in checking round end
+        self.end_of_round_check_lock = Lock()
 
     def _load_initial_tensors(self):
         """
@@ -1202,8 +1206,10 @@ class Aggregator:
             None
         """
         self.logger.info(f'End of round check called...')
-        if self._end_of_round_check_done[self.round_number]:
-            return
+        with self.end_of_round_check_lock:
+            if self._end_of_round_check_done[self.round_number]:
+                return
+            self._end_of_round_check_done[self.round_number] = True
         self.logger.info(f'Doing end of round...')
 
         # Compute all validation related metrics
@@ -1218,9 +1224,6 @@ class Aggregator:
         self.collaborator_start_time = {}
         self.collaborator_end_time = {}
         self.first_col_start = None
-
-        # Once all of the task results have been processed
-        self._end_of_round_check_done[self.round_number] = True
 
         # add new collaborators to available list as needed
         # MICAH TODO: should this be label or CN? Need to check with Hasan
