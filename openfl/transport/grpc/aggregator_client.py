@@ -123,7 +123,11 @@ def _resend_data_on_reconnection(func):
                     self.logger.info(
                         f"Attempting to resend data request to aggregator at {self.uri}"
                     )
-                elif e.code() in [grpc.StatusCode.UNAUTHENTICATED, grpc.StatusCode.NOT_FOUND]:
+                elif e.code() in [
+                        grpc.StatusCode.UNAUTHENTICATED,
+                        grpc.StatusCode.NOT_FOUND,
+                        grpc.StatusCode.DEADLINE_EXCEEDED
+                        ]:
                     raise
                 self.logger.info(f'Sent request, got {e.code()}')
                 continue
@@ -200,6 +204,7 @@ class AggregatorGRPCClient:
             self.stub = aggregator_pb2_grpc.AggregatorStub(
                 grpc.intercept_channel(self.channel, *self.interceptors)
             )
+        self.kwargs = kwargs
 
     def create_insecure_channel(self, uri):
         """
@@ -318,7 +323,8 @@ class AggregatorGRPCClient:
         """Get tasks from the aggregator."""
         self._set_header(collaborator_name)
         request = aggregator_pb2.GetTasksRequest(header=self.header)
-        response = self.stub.GetTasks(request)
+        timeout = self.kwargs.get("GetTasksTimeout", None)
+        response = self.stub.GetTasks(request, timeout=timeout)
         self.validate_response(response, collaborator_name)
 
         return (
@@ -350,7 +356,8 @@ class AggregatorGRPCClient:
             tags=tags,
             require_lossless=require_lossless,
         )
-        response = self.stub.GetAggregatedTensor(request)
+        timeout = self.kwargs.get("GetAggregatedTensorTimeout", None)
+        response = self.stub.GetAggregatedTensor(request, timeout=timeout)
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
@@ -379,7 +386,8 @@ class AggregatorGRPCClient:
         # convert (potentially) long list of tensors into stream
         stream = []
         stream += utils.proto_to_datastream(request, self.logger)
-        response = self.stub.SendLocalTaskResults(iter(stream))
+        timeout = self.kwargs.get("SendLocalTaskResultsTimeout", None)
+        response = self.stub.SendLocalTaskResults(iter(stream), timeout=timeout)
 
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
