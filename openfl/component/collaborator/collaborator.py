@@ -432,6 +432,7 @@ class Collaborator:
             tensor_name, origin, fl_round, report, tags = tensor
 
             if report:
+                print(f"\n#########\nBrandon DEBUG - type round num: {type(round_number)}, col_name: {type(self.collaborator_name)}\n")
                 self.logger.metric(
                     f'Round {round_number}, collaborator {self.collaborator_name} '
                     f'is sending metric for task {task_name}:'
