@@ -20,6 +20,32 @@ from openfl.utilities import TaskResultKey
 from openfl.utilities import TensorKey
 from openfl.utilities.logs import write_metric
 
+import psutil
+import os
+
+def _get_memory_usage() -> dict:
+    process = psutil.Process(os.getpid())
+    virtual_memory = psutil.virtual_memory()
+    swap_memory = psutil.swap_memory()
+    info = {
+            "process_memory": round(process.memory_info().rss / (1024**2), 2),
+            "virtual_memory/total": round(virtual_memory.total / (1024**2), 2),
+            "virtual_memory/available": round(virtual_memory.available / (1024**2), 2),
+            "virtual_memory/percent": virtual_memory.percent,
+            "virtual_memory/used": round(virtual_memory.used / (1024**2), 2),
+            "virtual_memory/free": round(virtual_memory.free / (1024**2), 2),
+            "virtual_memory/active": round(virtual_memory.active / (1024**2), 2),
+            "virtual_memory/inactive": round(virtual_memory.inactive / (1024**2), 2),
+            "virtual_memory/buffers": round(virtual_memory.buffers / (1024**2), 2),
+            "virtual_memory/cached": round(virtual_memory.cached / (1024**2), 2),
+            "virtual_memory/shared": round(virtual_memory.shared / (1024**2), 2),
+            "swap_memory/total": round(swap_memory.total / (1024**2), 2),
+            "swap_memory/used": round(swap_memory.used / (1024**2), 2),
+            "swap_memory/free": round(swap_memory.free / (1024**2), 2),
+            "swap_memory/percent": swap_memory.percent,
+           }
+    return info
+
 
 class Aggregator:
     r"""An Aggregator is the central node in federated learning.
@@ -1211,6 +1237,9 @@ class Aggregator:
                 return
             self._end_of_round_check_done[self.round_number] = True
         self.logger.info(f'Doing end of round...')
+
+        self.logger.debug(f'Memory Report:\n{_get_memory_usage()}\n\n'
+
 
         # Compute all validation related metrics
         all_tasks = self.assigner.get_all_tasks_for_round(self.round_number)
