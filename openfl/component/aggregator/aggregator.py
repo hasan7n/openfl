@@ -1238,7 +1238,7 @@ class Aggregator:
             self._end_of_round_check_done[self.round_number] = True
         self.logger.info(f'Doing end of round...')
 
-        self.logger.debug(f'Memory Report:\n{_get_memory_usage()}\n\n'
+        self.logger.debug(f'Memory Report:\n{_get_memory_usage()}\n\n')
 
 
         # Compute all validation related metrics
