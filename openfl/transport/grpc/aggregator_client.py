@@ -93,9 +93,9 @@ class RetryOnRpcErrorClientInterceptor(
 
 def _atomic_connection(func):
     def wrapper(self, *args, **kwargs):
-        self.reconnect()
+        # self.reconnect()
         response = func(self, *args, **kwargs)
-        self.disconnect()
+        # self.disconnect()
         return response
 
     return wrapper
