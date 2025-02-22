@@ -474,7 +474,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
 
     def get_server(self):
         """Return gRPC server."""
-        max_workers = int(cpu_count()*self.threads_multiplier)
+        max_workers = 1 # int(cpu_count()*self.threads_multiplier)
         self.server = server(ThreadPoolExecutor(max_workers=max_workers),
                              options=channel_options)
 
