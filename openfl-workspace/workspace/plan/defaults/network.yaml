@@ -7,4 +7,3 @@ settings:
     client_reconnect_interval  : 5
     disable_client_auth        : False
     cert_folder                : cert
-    threads_multiplier         : 1
