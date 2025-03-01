@@ -20,7 +20,7 @@ import sys
 from openfl.utilities import add_log_level
 
 
-def setup_logging(level='debug', log_file=None):
+def setup_logging(level='info', log_file=None):
     """Initialize logging settings."""
     import logging
     from logging import basicConfig
@@ -130,7 +130,7 @@ class CLI(Group):
 
 
 @group(cls=CLI)
-@option('-l', '--log-level', default='debug', help='Logging verbosity level.')
+@option('-l', '--log-level', default='info', help='Logging verbosity level.')
 @option('--no-warnings', is_flag=True, help='Disable third-party warnings.')
 @pass_context
 def cli(context, log_level, no_warnings):
@@ -254,7 +254,7 @@ def entry():
         cli.add_command(command_group.__getattribute__(module))
 
     try:
-        cli(max_content_width=120)
+        cli(log_level='debug', max_content_width=120)
     except Exception as e:
         error_handler(e)
 
