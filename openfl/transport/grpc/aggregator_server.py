@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from random import random
 from multiprocessing import cpu_count
 from time import sleep
-
+from threading import Lock
 from grpc import server
 from grpc import ssl_server_credentials
 from grpc import StatusCode
@@ -22,6 +22,43 @@ from openfl.utilities import check_is_in
 from .grpc_channel_options import channel_options
 
 logger = logging.getLogger(__name__)
+
+
+class Throttler:
+    def __init__(self, max_concurrency):
+        self.max_concurrency = max_concurrency
+        self.lock = Lock()
+        self.concurrent_requests = 0
+
+    def start_request(self):
+        if self.max_concurrency <= 0:
+            return
+        with self.lock:
+            self.concurrent_requests += 1
+
+    def should_sleep(self):
+        if self.max_concurrency <= 0:
+            return False
+        with self.lock:
+            return self.concurrent_requests >= self.max_concurrency
+
+    def finish_request(self):
+        if self.max_concurrency <= 0:
+            return
+        with self.lock:
+            self.concurrent_requests -= 1
+
+
+def throttle(func):
+    def wrapper(self, request, context):
+        if self.throttler.should_sleep():
+            context.abort(StatusCode.RESOURCE_EXHAUSTED, "Max concurrency reached")
+        self.throttler.start_request()
+        try:
+            return func(self, request, context)
+        finally:
+            self.throttler.finish_request()
+    return wrapper
 
 
 class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
@@ -61,6 +98,8 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.server = None
         self.server_credentials = None
         self.threads_multiplier = kwargs.pop("threads_multiplier", 1)
+        max_concurrency = kwargs.pop("max_concurrency", 20)
+        self.throttler = Throttler(max_concurrency)
 
         self.logger = logging.getLogger(__name__)
 
@@ -228,6 +267,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             quit=time_to_quit
         )
 
+    @throttle
     def GetAggregatedTensor(self, request, context):  # NOQA:N802
         """
         Request a job from aggregator.
@@ -261,6 +301,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             tensor=named_tensor
         )
 
+    @throttle
     def SendLocalTaskResults(self, request, context):  # NOQA:N802
         """
         Request a model download from aggregator.
