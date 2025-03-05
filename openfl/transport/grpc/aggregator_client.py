@@ -357,7 +357,9 @@ class AggregatorGRPCClient:
             require_lossless=require_lossless,
         )
         timeout = self.kwargs.get("GetAggregatedTensorTimeout", None)
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} START")
         response = self.stub.GetAggregatedTensor(request, timeout=timeout)
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} END")
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
@@ -387,7 +389,9 @@ class AggregatorGRPCClient:
         stream = []
         stream += utils.proto_to_datastream(request, self.logger)
         timeout = self.kwargs.get("SendLocalTaskResultsTimeout", None)
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {round_number} {time.time()} START")
         response = self.stub.SendLocalTaskResults(iter(stream), timeout=timeout)
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {round_number} {time.time()} END")
 
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)

@@ -20,6 +20,8 @@ from openfl.utilities import check_equal
 from openfl.utilities import check_is_in
 
 from .grpc_channel_options import channel_options
+import secrets
+from time import time
 
 logger = logging.getLogger(__name__)
 
@@ -248,12 +250,14 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         round_number = request.round_number
         report = request.report
         tags = tuple(request.tags)
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} START")
         try:
             named_tensor = self.aggregator.get_aggregated_tensor(
                 collaborator_name, tensor_name, round_number, report, tags, require_lossless
             )
         except ValueError as e:
             context.abort(StatusCode.UNAUTHENTICATED, str(e))
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} END")
 
         return aggregator_pb2.GetAggregatedTensorResponse(
             header=self.get_header(collaborator_name),
@@ -270,6 +274,8 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             context: The gRPC context
 
         """
+        call_id = secrets.token_hex(100)
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {call_id} STREAM {time()} START")
         try:
             proto = aggregator_pb2.TaskResults()
             proto = utils.datastream_to_proto(proto, request)
@@ -277,6 +283,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             raise RuntimeError(
                 'Empty stream message, reestablishing connection from client to resume training...'
             )
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {call_id} STREAM {time()} END")
 
         self.validate_collaborator(proto, context)
         # all messages get sanity checked
@@ -290,8 +297,10 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         round_number = proto.round_number
         data_size = proto.data_size
         named_tensors = proto.tensors
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} START")
         self.aggregator.send_local_task_results(
             collaborator_name, round_number, task_name, data_size, named_tensors)
+        self.logger.info(f"CUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} END")
         # turn data stream into local model update
         return aggregator_pb2.SendLocalTaskResultsResponse(
             header=self.get_header(collaborator_name)
