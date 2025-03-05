@@ -131,7 +131,9 @@ def _resend_data_on_reconnection(func):
                     raise
                 elif e.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
                     self.logger.info("Resending data after 10 seconds")
-                    time.sleep(10)
+                    self.disconnect()
+                    time.sleep(2)
+                    self.reconnect()
                 self.logger.info(f'Sent request, got {e.code()}')
                 continue
             break
@@ -410,6 +412,7 @@ class AggregatorGRPCClient:
 
     @_handle_grpc_error
     @_atomic_connection
+    @_resend_data_on_reconnection
     def connectivity_check(self, collaborator_name):
         """Check if collaborator can connect to the aggregator."""
         self._set_header(collaborator_name)
