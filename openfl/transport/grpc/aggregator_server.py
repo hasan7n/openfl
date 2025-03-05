@@ -61,7 +61,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.server = None
         self.server_credentials = None
         self.threads_multiplier = kwargs.pop("threads_multiplier", 1)
-        self.max_concurrency = kwargs.pop("max_concurrency", 20)
+        self.max_concurrency = kwargs.pop("max_concurrency", 1)
 
         self.logger = logging.getLogger(__name__)
 
