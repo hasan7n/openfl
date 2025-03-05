@@ -250,15 +250,18 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         round_number = request.round_number
         report = request.report
         tags = tuple(request.tags)
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} START")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} START {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         try:
             named_tensor = self.aggregator.get_aggregated_tensor(
                 collaborator_name, tensor_name, round_number, report, tags, require_lossless
             )
         except ValueError as e:
             context.abort(StatusCode.UNAUTHENTICATED, str(e))
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} END")
-
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} END {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         return aggregator_pb2.GetAggregatedTensorResponse(
             header=self.get_header(collaborator_name),
             round_number=round_number,
@@ -275,7 +278,9 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
 
         """
         call_id = secrets.token_hex(100)
-        print(f"\nCUSTOM_LOGS_FROM_ME: {call_id} STREAM {time()} START")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{call_id} STREAM {time()} START {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         try:
             proto = aggregator_pb2.TaskResults()
             proto = utils.datastream_to_proto(proto, request)
@@ -283,8 +288,9 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             raise RuntimeError(
                 'Empty stream message, reestablishing connection from client to resume training...'
             )
-        print(f"\nCUSTOM_LOGS_FROM_ME: {call_id} STREAM {time()} END")
-
+        ffff = f"/home/hasan_proj12/testws/analysis2/{call_id} STREAM {time()} END {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         self.validate_collaborator(proto, context)
         # all messages get sanity checked
         try:
@@ -297,10 +303,14 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         round_number = proto.round_number
         data_size = proto.data_size
         named_tensors = proto.tensors
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} START")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} START {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         self.aggregator.send_local_task_results(
             collaborator_name, round_number, task_name, data_size, named_tensors)
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} END")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} END {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         # turn data stream into local model update
         return aggregator_pb2.SendLocalTaskResultsResponse(
             header=self.get_header(collaborator_name)

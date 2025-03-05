@@ -20,6 +20,7 @@ from openfl.utilities import (
 )
 
 from .grpc_channel_options import channel_options
+import secrets
 
 
 class ConstantBackoff:
@@ -357,9 +358,13 @@ class AggregatorGRPCClient:
             require_lossless=require_lossless,
         )
         timeout = self.kwargs.get("GetAggregatedTensorTimeout", None)
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} START")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} START {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         response = self.stub.GetAggregatedTensor(request, timeout=timeout)
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} END")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} END {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
@@ -389,9 +394,13 @@ class AggregatorGRPCClient:
         stream = []
         stream += utils.proto_to_datastream(request, self.logger)
         timeout = self.kwargs.get("SendLocalTaskResultsTimeout", None)
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {round_number} {time.time()} START")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {round_number} {time.time()} START {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
         response = self.stub.SendLocalTaskResults(iter(stream), timeout=timeout)
-        print(f"\nCUSTOM_LOGS_FROM_ME: {collaborator_name} SendLocalTaskResults {round_number} {time.time()} END")
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {round_number} {time.time()} END {secrets.token_hex(20)}"
+        with open(ffff, "w") as f:
+            pass
 
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
