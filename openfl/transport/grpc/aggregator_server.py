@@ -250,7 +250,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         round_number = request.round_number
         report = request.report
         tags = tuple(request.tags)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} START {secrets.token_hex(20)}"
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name.replace('/', '_')} {round_number} {time()} START {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
         try:
@@ -259,7 +259,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             )
         except ValueError as e:
             context.abort(StatusCode.UNAUTHENTICATED, str(e))
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time()} END {secrets.token_hex(20)}"
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name.replace('/', '_')} {round_number} {time()} END {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
         return aggregator_pb2.GetAggregatedTensorResponse(
