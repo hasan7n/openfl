@@ -358,11 +358,11 @@ class AggregatorGRPCClient:
             require_lossless=require_lossless,
         )
         timeout = self.kwargs.get("GetAggregatedTensorTimeout", None)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} START {secrets.token_hex(20)}"
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name.replace('/', '_')} {round_number} {time.time()} START {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
         response = self.stub.GetAggregatedTensor(request, timeout=timeout)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name} {round_number} {time.time()} END {secrets.token_hex(20)}"
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name.replace('/', '_')} {round_number} {time.time()} END {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
         # also do other validation, like on the round_number
