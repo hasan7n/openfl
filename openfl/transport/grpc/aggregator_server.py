@@ -22,6 +22,7 @@ from openfl.utilities import check_is_in
 from .grpc_channel_options import channel_options
 import secrets
 from time import time
+import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +278,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             context: The gRPC context
 
         """
-        call_id = secrets.token_hex(100)
+        call_id = hashlib.sha1((secrets.token_hex(100) + str(time)).encode()).hexdigest()
         ffff = f"/home/hasan_proj12/testws/analysis2/{call_id} STREAM {time()} START {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
