@@ -131,9 +131,7 @@ def _resend_data_on_reconnection(func):
                     raise
                 elif e.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
                     self.logger.info("Resending data after 10 seconds")
-                    self.disconnect()
                     time.sleep(10)
-                    self.reconnect()
                 self.logger.info(f'Sent request, got {e.code()}')
                 continue
             break
