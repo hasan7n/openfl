@@ -20,7 +20,6 @@ from openfl.utilities import (
 )
 
 from .grpc_channel_options import channel_options
-import secrets
 
 
 class ConstantBackoff:

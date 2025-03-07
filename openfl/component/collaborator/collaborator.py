@@ -16,7 +16,6 @@ from openfl.utilities import TensorKey, tensorkey_for_dynamic_task_arg, arg_name
 
 import psutil
 import os
-from time import time
 
 
 def _get_memory_usage() -> dict:

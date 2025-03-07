@@ -20,9 +20,6 @@ from openfl.utilities import check_equal
 from openfl.utilities import check_is_in
 
 from .grpc_channel_options import channel_options
-import secrets
-from time import time
-import hashlib
 
 logger = logging.getLogger(__name__)
 
