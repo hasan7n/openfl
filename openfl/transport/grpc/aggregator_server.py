@@ -251,18 +251,12 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         round_number = request.round_number
         report = request.report
         tags = tuple(request.tags)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name.replace('/', '_')} {round_number} {time()} START {secrets.token_hex(20)}"
-        with open(ffff, "w") as f:
-            pass
         try:
             named_tensor = self.aggregator.get_aggregated_tensor(
                 collaborator_name, tensor_name, round_number, report, tags, require_lossless
             )
         except ValueError as e:
             context.abort(StatusCode.UNAUTHENTICATED, str(e))
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} GetAggregatedTensor {tensor_name.replace('/', '_')} {round_number} {time()} END {secrets.token_hex(20)}"
-        with open(ffff, "w") as f:
-            pass
         return aggregator_pb2.GetAggregatedTensorResponse(
             header=self.get_header(collaborator_name),
             round_number=round_number,
@@ -291,14 +285,9 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         named_tensor = request.tensor
         final_tensor = request.final_tensor
 
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {named_tensor.name.replace('/', '_')} {round_number} {time()} START {secrets.token_hex(20)}"
-        with open(ffff, "w") as f:
-            pass
         self.aggregator.send_local_task_results(
             collaborator_name, round_number, task_name, data_size, named_tensor, final_tensor)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {named_tensor.name.replace('/', '_')} {round_number} {time()} END {secrets.token_hex(20)}"
-        with open(ffff, "w") as f:
-            pass
+
         # turn data stream into local model update
         return aggregator_pb2.SendLocalTaskResultsResponse(
             header=self.get_header(collaborator_name)

@@ -174,11 +174,7 @@ class Collaborator:
             else:
                 self.logger.info(f'Received the following tasks: {tasks}')
                 for task in tasks:
-                    with open(f"/home/hasan_proj12/testws/analysis/start____{round_number}____{self.collaborator_name}____{task}____{time()}", "w") as f:
-                        pass
                     self.do_task(task, round_number)
-                    with open(f"/home/hasan_proj12/testws/analysis/end____{round_number}____{self.collaborator_name}____{task}____{time()}", "w") as f:
-                        pass
 
                 # Cleaning tensor db
                 self.tensor_db.clean_up(self.db_store_rounds)
