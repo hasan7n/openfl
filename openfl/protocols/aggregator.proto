@@ -11,7 +11,7 @@ import "openfl/protocols/base.proto";
 service Aggregator {
   rpc GetTasks(GetTasksRequest) returns (GetTasksResponse) {}
   rpc GetAggregatedTensor(GetAggregatedTensorRequest) returns (GetAggregatedTensorResponse) {}
-  rpc SendLocalTaskResults(stream DataStream) returns (SendLocalTaskResultsResponse) {}
+  rpc SendLocalTaskResults(TaskResults) returns (SendLocalTaskResultsResponse) {}
   rpc GetMetricStream(GetMetricStreamRequest) returns (stream GetMetricStreamResponse) {}
   rpc GetTrainedModel(GetTrainedModelRequest) returns (TrainedModelResponse) {}
   rpc GetExperimentDescription(GetExperimentDescriptionRequest)
@@ -74,7 +74,8 @@ message TaskResults {
   int32 round_number = 2;
   string task_name = 3;
   int32	data_size = 4;
-  repeated NamedTensor tensors = 5;
+  NamedTensor tensor = 5;
+  bool final_tensor = 6;
 }
 
 message SendLocalTaskResultsResponse {

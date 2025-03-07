@@ -278,38 +278,25 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             context: The gRPC context
 
         """
-        call_id = hashlib.sha1((secrets.token_hex(100) + str(time)).encode()).hexdigest()
-        ffff = f"/home/hasan_proj12/testws/analysis2/{call_id} STREAM {time()} START {secrets.token_hex(20)}"
-        with open(ffff, "w") as f:
-            pass
+        self.validate_collaborator(request, context)
         try:
-            proto = aggregator_pb2.TaskResults()
-            proto = utils.datastream_to_proto(proto, request)
-        except RuntimeError:
-            raise RuntimeError(
-                'Empty stream message, reestablishing connection from client to resume training...'
-            )
-        ffff = f"/home/hasan_proj12/testws/analysis2/{call_id} STREAM {time()} END {secrets.token_hex(20)}"
-        with open(ffff, "w") as f:
-            pass
-        self.validate_collaborator(proto, context)
-        # all messages get sanity checked
-        try:
-            self.check_request(proto)
+            self.check_request(request)
         except ValueError as e:
             context.abort(StatusCode.UNAUTHENTICATED, str(e))
 
-        collaborator_name = proto.header.sender
-        task_name = proto.task_name
-        round_number = proto.round_number
-        data_size = proto.data_size
-        named_tensors = proto.tensors
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} START {secrets.token_hex(20)}"
+        collaborator_name = request.header.sender
+        task_name = request.task_name
+        round_number = request.round_number
+        data_size = request.data_size
+        named_tensor = request.tensor
+        final_tensor = request.final_tensor
+
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {named_tensor.name.replace('/', '_')} {round_number} {time()} START {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
         self.aggregator.send_local_task_results(
-            collaborator_name, round_number, task_name, data_size, named_tensors)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {call_id} {round_number} {time()} END {secrets.token_hex(20)}"
+            collaborator_name, round_number, task_name, data_size, named_tensor, final_tensor)
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {named_tensor.name.replace('/', '_')} {round_number} {time()} END {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
         # turn data stream into local model update

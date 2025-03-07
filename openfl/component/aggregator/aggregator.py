@@ -164,6 +164,7 @@ class Aggregator:
 
         # these enable getting all tensors for a task
         self.collaborator_tasks_results = {}  # {TaskResultKey: list of TensorKeys}
+        self.tmp_collaborator_tasks_results = {}  # {TaskResultKey: list of TensorKeys}
 
         self.collaborator_task_weight = {}  # {TaskResultKey: data_size}
 
@@ -716,7 +717,7 @@ class Aggregator:
             time.time() - self.rounds_status[round_number]["round_start"])
 
     def send_local_task_results(self, collaborator_name, round_number, task_name,
-                                data_size, named_tensors):
+                                data_size, named_tensor, final_tensor):
         """
         RPC called by collaborator.
 
@@ -755,10 +756,11 @@ class Aggregator:
                 pass
             return
 
-        self.logger.info(
-            f'Collaborator {collaborator_name} is sending task results '
-            f'for {task_name}, round {round_number}'
-        )
+        if final_tensor:
+            self.logger.info(
+                f'Collaborator {collaborator_name} is sending task results '
+                f'for {task_name}, round {round_number}'
+            )
 
         task_key = TaskResultKey(task_name, collaborator_name, round_number)
 
@@ -766,60 +768,59 @@ class Aggregator:
         if self._collaborator_task_completed(
             collaborator_name, task_name, round_number
         ):
+            # HK-TODO: should we just return here? avoid unexpected behaviour. it doesn't hurt to return.
             raise ValueError(
                 f'Aggregator already has task results from collaborator {collaborator_name}'
                 f' for task {task_key}'
             )
 
-        # By giving task_key it's own weight, we can support different
-        # training/validation weights
-        # As well as eventually supporting weights that change by round
-        # (if more data is added)
-        self.collaborator_task_weight[task_key] = data_size
+        # quite a bit happens in here, including decompression, delta
+        # handling, etc...
+        tensor_key, value = self._process_named_tensor(
+            named_tensor, collaborator_name)
 
-        # initialize the list of tensors that go with this task
-        # Setting these incrementally is leading to missing values
-        task_results = []
+        if 'metric' in tensor_key.tags:
+            # Caution: This schema must be followed. It is also used in
+            # gRPC message streams for director/envoy.
+            metrics = {
+                'round': round_number,
+                'metric_origin': collaborator_name,
+                'task_name': task_name,
+                'metric_name': tensor_key.tensor_name,
+                'metric_value': float(value),
+            }
+            self.metric_queue.put(metrics)
+            self.metrics.append(metrics)
+            self.logger.metric("%s", str(metrics))
 
-        for named_tensor in named_tensors:
-            # quite a bit happens in here, including decompression, delta
-            # handling, etc...
-            tensor_key, value = self._process_named_tensor(
-                named_tensor, collaborator_name)
+        if task_key not in self.tmp_collaborator_tasks_results:
+            self.tmp_collaborator_tasks_results[task_key] = []
+        self.tmp_collaborator_tasks_results[task_key].append(tensor_key)
 
-            if 'metric' in tensor_key.tags:
-                # Caution: This schema must be followed. It is also used in
-                # gRPC message streams for director/envoy.
-                metrics = {
-                    'round': round_number,
-                    'metric_origin': collaborator_name,
-                    'task_name': task_name,
-                    'metric_name': tensor_key.tensor_name,
-                    'metric_value': float(value),
-                }
-                self.metric_queue.put(metrics)
-                self.metrics.append(metrics)
-                self.logger.metric("%s", str(metrics))
+        if final_tensor:
+            # By giving task_key it's own weight, we can support different
+            # training/validation weights
+            # As well as eventually supporting weights that change by round
+            # (if more data is added)        
+            self.collaborator_task_weight[task_key] = data_size
 
-            task_results.append(tensor_key)
+            self.collaborator_tasks_results[task_key] = self.tmp_collaborator_tasks_results.pop(task_key)
+            if collaborator_name not in self.collaborator_end_time:
+                self.collaborator_end_time[collaborator_name] = {}
+            self.collaborator_end_time[collaborator_name][task_name] = (
+                time.time() - self.first_col_start)
 
-        self.collaborator_tasks_results[task_key] = task_results
-        if collaborator_name not in self.collaborator_end_time:
-            self.collaborator_end_time[collaborator_name] = {}
-        self.collaborator_end_time[collaborator_name][task_name] = (
-            time.time() - self.first_col_start)
+            self._is_collaborator_done(collaborator_name)
 
-        self._is_collaborator_done(collaborator_name)
+            # if all assigned collaborators are done, end the round
+            if len(self.collaborators_done) == len(self.assigner.get_assigned_collaborators()):
+                self._end_of_round_check()
 
-        # if all assigned collaborators are done, end the round
-        if len(self.collaborators_done) == len(self.assigner.get_assigned_collaborators()):
-            self._end_of_round_check()
-
-        # Check if straggler handler calls for round end
-        elif self.straggler_handling_policy.straggler_cutoff_check(
-            len(self.collaborators_done), len(self.assigner.get_assigned_collaborators())
-        ):
-            self._end_round_due_to_stragglers()
+            # Check if straggler handler calls for round end
+            elif self.straggler_handling_policy.straggler_cutoff_check(
+                len(self.collaborators_done), len(self.assigner.get_assigned_collaborators())
+            ):
+                self._end_round_due_to_stragglers()
 
     def _end_round_due_to_stragglers(self):
         # determine stragglers

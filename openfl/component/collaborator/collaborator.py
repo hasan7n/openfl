@@ -473,8 +473,10 @@ class Collaborator:
 
         self.logger.debug(f"Memory Report:\n{_get_memory_usage()}\n\n")
 
-        self.client.send_local_task_results(
-            self.collaborator_name, round_number, task_name, data_size, named_tensors)
+        length = len(named_tensors)
+        for i, named_tensor in enumerate(named_tensors):
+            self.client.send_local_task_results(
+                self.collaborator_name, round_number, task_name, data_size, named_tensor, final_tensor=(i == length - 1))
 
     def nparray_to_named_tensor(self, tensor_key, nparray):
         """

@@ -378,7 +378,8 @@ class AggregatorGRPCClient:
         round_number,
         task_name,
         data_size,
-        named_tensors,
+        named_tensor,
+        final_tensor
     ):
         """Send task results to the aggregator."""
         self._set_header(collaborator_name)
@@ -387,18 +388,16 @@ class AggregatorGRPCClient:
             round_number=round_number,
             task_name=task_name,
             data_size=data_size,
-            tensors=named_tensors,
+            tensor=named_tensor,
+            final_tensor=final_tensor
         )
 
-        # convert (potentially) long list of tensors into stream
-        stream = []
-        stream += utils.proto_to_datastream(request, self.logger)
         timeout = self.kwargs.get("SendLocalTaskResultsTimeout", None)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {round_number} {time.time()} START {secrets.token_hex(20)}"
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {named_tensor.name.replace('/', '_')} {round_number} {time.time()} START {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
-        response = self.stub.SendLocalTaskResults(iter(stream), timeout=timeout)
-        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {round_number} {time.time()} END {secrets.token_hex(20)}"
+        response = self.stub.SendLocalTaskResults(request, timeout=timeout)
+        ffff = f"/home/hasan_proj12/testws/analysis2/{collaborator_name} SendLocalTaskResults {named_tensor.name.replace('/', '_')} {round_number} {time.time()} END {secrets.token_hex(20)}"
         with open(ffff, "w") as f:
             pass
 
