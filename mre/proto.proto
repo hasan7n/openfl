@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service StreamingService {
+  rpc DoStream (stream StreamingRequest) returns (StreamingRespone) {}
+}
+
+message StreamingRequest {
+  bytes message = 1;
+}
+
+message StreamingRespone {
+  string message = 1;
+}

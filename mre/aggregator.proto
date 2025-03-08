@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+service Aggregator {
+  rpc GetTasks(GetTasksRequest) returns (GetTasksResponse) {}
+  rpc GetAggregatedTensor(GetAggregatedTensorRequest) returns (GetAggregatedTensorResponse) {}
+  rpc SendLocalTaskResults(stream DataStream) returns (SendLocalTaskResultsResponse) {}
+}
+
+message MessageHeader {
+  string sender = 1;
+  string receiver = 2;
+  string federation_uuid = 3;
+  string single_col_cert_common_name = 4;
+}
+
+message Task {
+  string name = 1;
+  string function_name = 2;
+  string task_type = 3;
+  bool apply_local = 4;
+}
+
+message MetadataProto {
+  map<int32, float> int_to_float = 1;
+  repeated int32 int_list = 2;
+  repeated bool bool_list = 3;
+}
+
+message NamedTensor {
+  string name = 1;
+  int32 round_number = 2;
+  bool lossless	= 3;
+  bool report = 4;
+  repeated string tags = 5;
+  repeated MetadataProto transformer_metadata = 6;
+  bytes data_bytes = 7;
+}
+
+message DataStream {
+  uint32 size = 1; // size, in bytes, of the data sent in npbytes
+  bytes npbytes = 2; // actual data
+}
+
+message GetTasksRequest {
+  MessageHeader header = 1;
+}
+
+message GetTasksResponse {
+  MessageHeader header = 1;
+  int32 round_number = 2;
+  // these next three are exclusive. Oneof is probably a good idea
+  repeated Task tasks = 3;  // these three are exclusive
+  int32 sleep_time = 4;  // these three are exclusive
+  bool quit = 5;  // these three are exclusive
+}
+
+message GetAggregatedTensorRequest {
+  MessageHeader header = 1;
+  string tensor_name = 2;
+  int32 round_number = 3;
+  bool report = 4;
+  repeated string	tags = 5;
+  bool require_lossless = 6;
+}
+
+message GetAggregatedTensorResponse {
+  MessageHeader header = 1;
+  int32 round_number = 2;
+  NamedTensor tensor = 3;
+}
+
+message TaskResults {
+  MessageHeader  header = 1;
+  int32 round_number = 2;
+  string task_name = 3;
+  int32	data_size = 4;
+  repeated NamedTensor tensors = 5;
+}
+
+message SendLocalTaskResultsResponse {
+  MessageHeader header = 1;
+}

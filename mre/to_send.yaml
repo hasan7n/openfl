@@ -1,0 +1,2024 @@
+- origin: col1@example.com
+  report: true
+  round_number: 1
+  tags:
+    - metric
+  tensor_name: train_loss
+  val_shape: []
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.0.blocks.0.conv.weight
+  val_shape:
+    - 320
+    - 640
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.0.blocks.0.conv.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.0.blocks.0.instnorm.weight
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.0.blocks.0.instnorm.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.1.blocks.0.conv.weight
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.1.blocks.0.conv.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.1.blocks.0.instnorm.weight
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.0.1.blocks.0.instnorm.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.0.blocks.0.conv.weight
+  val_shape:
+    - 256
+    - 512
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.0.blocks.0.conv.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.0.blocks.0.instnorm.weight
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.0.blocks.0.instnorm.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.1.blocks.0.conv.weight
+  val_shape:
+    - 256
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.1.blocks.0.conv.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.1.blocks.0.instnorm.weight
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.1.1.blocks.0.instnorm.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.0.blocks.0.conv.weight
+  val_shape:
+    - 128
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.0.blocks.0.conv.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.0.blocks.0.instnorm.weight
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.0.blocks.0.instnorm.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.1.blocks.0.conv.weight
+  val_shape:
+    - 128
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.1.blocks.0.conv.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.1.blocks.0.instnorm.weight
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.2.1.blocks.0.instnorm.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.0.blocks.0.conv.weight
+  val_shape:
+    - 64
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.0.blocks.0.conv.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.0.blocks.0.instnorm.weight
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.0.blocks.0.instnorm.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.1.blocks.0.conv.weight
+  val_shape:
+    - 64
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.1.blocks.0.conv.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.1.blocks.0.instnorm.weight
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.3.1.blocks.0.instnorm.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.0.blocks.0.conv.weight
+  val_shape:
+    - 32
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.0.blocks.0.conv.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.0.blocks.0.instnorm.weight
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.0.blocks.0.instnorm.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.1.blocks.0.conv.weight
+  val_shape:
+    - 32
+    - 32
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.1.blocks.0.conv.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.1.blocks.0.instnorm.weight
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_localization.4.1.blocks.0.instnorm.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.0.conv.weight
+  val_shape:
+    - 32
+    - 4
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.0.conv.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.0.instnorm.weight
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.0.instnorm.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.1.conv.weight
+  val_shape:
+    - 32
+    - 32
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.1.conv.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.1.instnorm.weight
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.0.blocks.1.instnorm.bias
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.0.conv.weight
+  val_shape:
+    - 64
+    - 32
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.0.conv.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.0.instnorm.weight
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.0.instnorm.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.1.conv.weight
+  val_shape:
+    - 64
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.1.conv.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.1.instnorm.weight
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.1.blocks.1.instnorm.bias
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.0.conv.weight
+  val_shape:
+    - 128
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.0.conv.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.0.instnorm.weight
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.0.instnorm.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.1.conv.weight
+  val_shape:
+    - 128
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.1.conv.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.1.instnorm.weight
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.2.blocks.1.instnorm.bias
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.0.conv.weight
+  val_shape:
+    - 256
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.0.conv.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.0.instnorm.weight
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.0.instnorm.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.1.conv.weight
+  val_shape:
+    - 256
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.1.conv.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.1.instnorm.weight
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.3.blocks.1.instnorm.bias
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.0.conv.weight
+  val_shape:
+    - 320
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.0.conv.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.0.instnorm.weight
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.0.instnorm.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.1.conv.weight
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.1.conv.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.1.instnorm.weight
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.4.blocks.1.instnorm.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.0.blocks.0.conv.weight
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.0.blocks.0.conv.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.0.blocks.0.instnorm.weight
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.0.blocks.0.instnorm.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.1.blocks.0.conv.weight
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.1.blocks.0.conv.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.1.blocks.0.instnorm.weight
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: conv_blocks_context.5.1.blocks.0.instnorm.bias
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: tu.0.weight
+  val_shape:
+    - 320
+    - 320
+    - 2
+    - 2
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: tu.1.weight
+  val_shape:
+    - 320
+    - 256
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: tu.2.weight
+  val_shape:
+    - 256
+    - 128
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: tu.3.weight
+  val_shape:
+    - 128
+    - 64
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: tu.4.weight
+  val_shape:
+    - 64
+    - 32
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: seg_outputs.0.weight
+  val_shape:
+    - 5
+    - 320
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: seg_outputs.1.weight
+  val_shape:
+    - 5
+    - 256
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: seg_outputs.2.weight
+  val_shape:
+    - 5
+    - 128
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: seg_outputs.3.weight
+  val_shape:
+    - 5
+    - 64
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: seg_outputs.4.weight
+  val_shape:
+    - 5
+    - 32
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_0_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 640
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_1_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_2_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_3_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_4_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_5_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_6_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_7_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_8_istensor_momentum_buffer
+  val_shape:
+    - 256
+    - 512
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_9_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_10_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_11_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_12_istensor_momentum_buffer
+  val_shape:
+    - 256
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_13_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_14_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_15_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_16_istensor_momentum_buffer
+  val_shape:
+    - 128
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_17_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_18_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_19_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_20_istensor_momentum_buffer
+  val_shape:
+    - 128
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_21_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_22_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_23_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_24_istensor_momentum_buffer
+  val_shape:
+    - 64
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_25_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_26_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_27_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_28_istensor_momentum_buffer
+  val_shape:
+    - 64
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_29_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_30_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_31_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_32_istensor_momentum_buffer
+  val_shape:
+    - 32
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_33_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_34_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_35_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_36_istensor_momentum_buffer
+  val_shape:
+    - 32
+    - 32
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_37_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_38_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_39_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_40_istensor_momentum_buffer
+  val_shape:
+    - 32
+    - 4
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_41_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_42_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_43_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_44_istensor_momentum_buffer
+  val_shape:
+    - 32
+    - 32
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_45_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_46_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_47_istensor_momentum_buffer
+  val_shape:
+    - 32
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_48_istensor_momentum_buffer
+  val_shape:
+    - 64
+    - 32
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_49_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_50_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_51_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_52_istensor_momentum_buffer
+  val_shape:
+    - 64
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_53_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_54_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_55_istensor_momentum_buffer
+  val_shape:
+    - 64
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_56_istensor_momentum_buffer
+  val_shape:
+    - 128
+    - 64
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_57_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_58_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_59_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_60_istensor_momentum_buffer
+  val_shape:
+    - 128
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_61_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_62_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_63_istensor_momentum_buffer
+  val_shape:
+    - 128
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_64_istensor_momentum_buffer
+  val_shape:
+    - 256
+    - 128
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_65_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_66_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_67_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_68_istensor_momentum_buffer
+  val_shape:
+    - 256
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_69_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_70_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_71_istensor_momentum_buffer
+  val_shape:
+    - 256
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_72_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 256
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_73_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_74_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_75_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_76_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_77_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_78_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_79_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_80_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_81_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_82_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_83_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_84_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 320
+    - 3
+    - 3
+    - 3
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_85_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_86_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_87_istensor_momentum_buffer
+  val_shape:
+    - 320
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_88_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 320
+    - 2
+    - 2
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_89_istensor_momentum_buffer
+  val_shape:
+    - 320
+    - 256
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_90_istensor_momentum_buffer
+  val_shape:
+    - 256
+    - 128
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_91_istensor_momentum_buffer
+  val_shape:
+    - 128
+    - 64
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_92_istensor_momentum_buffer
+  val_shape:
+    - 64
+    - 32
+    - 2
+    - 2
+    - 2
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_93_istensor_momentum_buffer
+  val_shape:
+    - 5
+    - 256
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_94_istensor_momentum_buffer
+  val_shape:
+    - 5
+    - 128
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_95_istensor_momentum_buffer
+  val_shape:
+    - 5
+    - 64
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_state_0_96_istensor_momentum_buffer
+  val_shape:
+    - 5
+    - 32
+    - 1
+    - 1
+    - 1
+  val_type: float32
+- origin: col1@example.com
+  report: false
+  round_number: 1
+  tags:
+    - trained
+  tensor_name: __opt_group_lengths
+  val_shape:
+    - 1
+  val_type: int64

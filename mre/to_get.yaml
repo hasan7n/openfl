@@ -1,0 +1,588 @@
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.0.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.0.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.0.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.0.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.1.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.1.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.1.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.0.1.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.0.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.0.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.0.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.0.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.1.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.1.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.1.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.1.1.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.0.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.0.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.0.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.0.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.1.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.1.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.1.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.2.1.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.0.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.0.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.0.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.0.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.1.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.1.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.1.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.3.1.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.0.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.0.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.0.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.0.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.1.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.1.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.1.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_localization.4.1.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.1.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.1.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.1.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.0.blocks.1.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.1.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.1.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.1.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.1.blocks.1.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.1.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.1.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.1.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.2.blocks.1.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.1.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.1.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.1.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.3.blocks.1.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.1.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.1.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.1.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.4.blocks.1.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.0.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.0.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.0.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.0.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.1.blocks.0.conv.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.1.blocks.0.conv.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.1.blocks.0.instnorm.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: conv_blocks_context.5.1.blocks.0.instnorm.bias
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: tu.0.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: tu.1.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: tu.2.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: tu.3.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: tu.4.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: seg_outputs.0.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: seg_outputs.1.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: seg_outputs.2.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: seg_outputs.3.weight
+- origin: GLOBAL
+  report: false
+  round_number: 0
+  tags:
+    - model
+  tensor_name: seg_outputs.4.weight
