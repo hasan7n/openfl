@@ -93,10 +93,10 @@ class Aggregator:
             print(f"ALREADY {collaborator_name} round {self.round_number}")
             raise ValueError(f"Aggregator already has task results from collaborator {collaborator_name} for task {task_name}")
 
-        for named_tensor in named_tensors:
-            array_shape = tuple(named_tensor.transformer_metadata[0].int_list)
-            flat_array = np.frombuffer(named_tensor.data_bytes, dtype=np.float32)
-            _ = np.reshape(flat_array, newshape=array_shape, order="C")
+        # for named_tensor in named_tensors:
+        #     array_shape = tuple(named_tensor.transformer_metadata[0].int_list)
+        #     flat_array = np.frombuffer(named_tensor.data_bytes, dtype=np.float32)
+        #     _ = np.reshape(flat_array, newshape=array_shape, order="C")
 
         self.tasks_done[collaborator_name][round_number].append(task_name)
 

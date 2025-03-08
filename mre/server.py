@@ -53,13 +53,21 @@ def datastream_to_proto(proto, stream, logger=None):
         protobuf: A protobuf of the model
     """
     npbytes = b""
+    i = -1
     for chunk in stream:
+        i += 1
+        if i == 0:
+            round_number = int(chunk.npbytes.decode())
+            continue
+        if i == 1:
+            task_name = chunk.npbytes.decode()
+            continue
         npbytes += chunk.npbytes
 
     if len(npbytes) > 0:
-        proto.ParseFromString(npbytes)
-        print(f"datastream_to_proto parsed a {type(proto)}.")
-        return proto
+        # proto.ParseFromString(npbytes)
+        # print(f"datastream_to_proto parsed a {type(proto)}.")
+        return proto, round_number, task_name
     else:
         raise RuntimeError(f"Received empty stream message of type {type(proto)}")
 
@@ -235,24 +243,26 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             pass
         try:
             proto = aggregator_pb2.TaskResults()
-            proto = datastream_to_proto(proto, request)
+            proto, round_number, task_name = datastream_to_proto(proto, request)
         except RuntimeError:
             raise RuntimeError("Empty stream message, reestablishing connection from client to resume training...")
         ffff = f"./analysis2/{collaborator_name} STREAM {time()} END {secrets.token_hex(20)}"
         with open(ffff, "w"):
             pass
-        self.validate_collaborator(proto, context)
+        # self.validate_collaborator(proto, context)
         # all messages get sanity checked
-        try:
-            self.check_request(proto)
-        except ValueError as e:
-            context.abort(StatusCode.UNAUTHENTICATED, str(e))
+        # try:
+        #     self.check_request(proto)
+        # except ValueError as e:
+        #     context.abort(StatusCode.UNAUTHENTICATED, str(e))
 
-        collaborator_name = proto.header.sender
-        task_name = proto.task_name
-        round_number = proto.round_number
-        data_size = proto.data_size
-        named_tensors = proto.tensors
+        # collaborator_name = proto.header.sender
+        # task_name = proto.task_name
+        # round_number = proto.round_number
+        # data_size = proto.data_size
+        # named_tensors = proto.tensors
+        data_size = 10
+        named_tensors = []
         ffff = f"./analysis2/{collaborator_name} SendLocalTaskResults {round_number} {time()} START {secrets.token_hex(20)}"
         with open(ffff, "w"):
             pass
