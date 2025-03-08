@@ -63,8 +63,8 @@ class Collaborator:
             with open("to_send.yaml") as f:
                 data = yaml.safe_load(f)
             global_output_tensor_dict = {}
-            for d in data:
-                global_output_tensor_dict[d["tensor_name"]] = np.random.random(size=d["val_shape"]).astype(d["val_type"])
+            # for d in data:
+            #     global_output_tensor_dict[d["tensor_name"]] = np.random.random(size=d["val_shape"]).astype(d["val_type"])
         else:
             global_output_tensor_dict = {
                 "val_eval": np.random.random(size=[]).astype(np.float64),

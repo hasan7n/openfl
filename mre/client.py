@@ -11,7 +11,7 @@ import grpc
 
 import aggregator_pb2
 import aggregator_pb2_grpc
-
+import os
 import secrets
 
 channel_options = [
@@ -28,7 +28,7 @@ def check_equal(x, y, logger):
         raise exception
 
 
-def proto_to_datastream(proto, logger, max_buffer_size=(2 * 1024 * 1024)):
+def proto_to_datastream(proto, logger, round_number, task, max_buffer_size=(2 * 1024 * 1024)):
     """Convert the protobuf to the datastream for the remote connection.
 
     Args:
@@ -38,10 +38,19 @@ def proto_to_datastream(proto, logger, max_buffer_size=(2 * 1024 * 1024)):
     Returns:
         reply: The message for the remote connection.
     """
-    npbytes = proto.SerializeToString()
+    if task == "train":
+        npbytes = os.urandom(246331372)
+    else:
+        npbytes = os.urandom(229)
+
     data_size = len(npbytes)
     buffer_size = data_size if max_buffer_size > data_size else max_buffer_size
     print(f"Setting stream chunks with size {buffer_size} for proto of type {type(proto)}")
+
+    chunk = str(round_number).encode()
+    yield aggregator_pb2.DataStream(npbytes=chunk, size=len(chunk))
+    chunk = task.encode()
+    yield aggregator_pb2.DataStream(npbytes=chunk, size=len(chunk))
 
     for i in range(0, data_size, buffer_size):
         chunk = npbytes[i : i + buffer_size]  # noqa
@@ -353,7 +362,7 @@ class AggregatorGRPCClient:
 
         # convert (potentially) long list of tensors into stream
         stream = []
-        stream += proto_to_datastream(request, self.logger)
+        stream += proto_to_datastream(request, self.logger, round_number, task_name)
         timeout = self.kwargs.get("SendLocalTaskResultsTimeout", None)
         ffff = f"./analysis2/{collaborator_name} SendLocalTaskResults {round_number} {time.time()} START {secrets.token_hex(20)}"
         with open(ffff, "w"):
