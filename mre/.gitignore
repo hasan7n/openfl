@@ -1,3 +1,6 @@
 !certs/**/*.crt
 !certs/**/*.key
 !aggregator_pb2*
+logs/
+analysis/
+analysis2/
