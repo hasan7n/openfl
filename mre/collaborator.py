@@ -18,7 +18,7 @@ class Collaborator:
         self.collaborator_name = f"col{coln}@example.com"
 
         self.client = AggregatorGRPCClient(
-            "localhost",
+            "35.223.9.89",
             5505,
             True,
             False,
