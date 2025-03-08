@@ -30,6 +30,12 @@ class Aggregator:
         # To prevent race condition in checking round end
         self.end_of_round_check_lock = Lock()
 
+        with open("to_send.yaml") as f:
+            data = yaml.safe_load(f)
+        self.arrays = {}
+        for d in data:
+            self.arrays[d["tensor_name"]] = np.random.random(size=d["val_shape"]).astype(d["val_type"])
+
     def valid_collaborator_cn_and_id(self, cert_common_name, collaborator_common_name):
         return cert_common_name == collaborator_common_name and collaborator_common_name in self.authorized_cols
 
@@ -56,18 +62,7 @@ class Aggregator:
         return tasks, self.round_number, sleep_time, time_to_quit
 
     def get_aggregated_tensor(self, collaborator_name, tensor_name, round_number, report, tags, require_lossless):
-
-        with open("to_send.yaml") as f:
-            data = yaml.safe_load(f)
-
-        nparray = None
-        for d in data:
-            if d["tensor_name"] == tensor_name:
-                nparray = np.random.random(size=d["val_shape"]).astype(d["val_type"])
-                break
-
-        if nparray is None:
-            raise
+        nparray = self.arrays[tensor_name]
 
         array_shape = nparray.shape
         compressed_nparray = nparray.tobytes(order="C")
@@ -117,5 +112,13 @@ class Aggregator:
             if self._end_of_round_check_done[self.round_number]:
                 return
             self._end_of_round_check_done[self.round_number] = True
-        print("ending round")
-        self.round_number += 1
+            print("ending round")
+            self.round_number += 1
+
+            with open("to_send.yaml") as f:
+                data = yaml.safe_load(f)
+
+            del self.arrays
+            self.arrays = {}
+            for d in data:
+                self.arrays[d["tensor_name"]] = np.random.random(size=d["val_shape"]).astype(d["val_type"])
