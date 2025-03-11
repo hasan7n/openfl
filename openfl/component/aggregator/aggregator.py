@@ -481,7 +481,8 @@ class Aggregator:
         if not self.straggler_handling_policy_started_for_round:
             self.straggler_handling_policy_started_for_round = True
             self.straggler_handling_policy.start_policy(
-                callback=self._straggler_cutoff_time_elapsed
+                callback=self._straggler_cutoff_time_elapsed,
+                round_number=self.round_number
             )
             cutoff = None
             if hasattr(self.straggler_handling_policy, 'straggler_cutoff_time'):
