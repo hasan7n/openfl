@@ -6,7 +6,7 @@ from copy import deepcopy
 import time
 import queue
 from logging import getLogger
-from threading import Lock
+from threading import RLock
 
 from openfl.interface.aggregation_functions import WeightedAverage
 from openfl.component.straggler_handling_functions import CutoffTimeBasedStragglerHandling
@@ -185,7 +185,7 @@ class Aggregator:
         self.collaborators_to_remove = []
 
         # To prevent race condition in checking round end
-        self.end_of_round_check_lock = Lock()
+        self.end_of_round_check_lock = RLock()
 
     def _load_initial_tensors(self):
         """
@@ -504,7 +504,7 @@ class Aggregator:
 
         return tasks, self.round_number, sleep_time, time_to_quit
 
-    def _straggler_cutoff_time_elapsed(self) -> None:
+    def _straggler_cutoff_time_elapsed(self, round_number=None) -> None:
         """
         This method is called by the straggler handling policy when cutoff timer is elapsed.
         It applies straggler handling policy and ends the round early.
@@ -524,7 +524,7 @@ class Aggregator:
         if self.straggler_handling_policy.straggler_cutoff_check(
             len(self.collaborators_done), len(self.assigner.get_assigned_collaborators())
         ):
-            self._end_round_due_to_stragglers()
+            self._end_round_due_to_stragglers(round_number=round_number)
 
     def get_aggregated_tensor(self, collaborator_name, tensor_name,
                               round_number, report, tags, require_lossless):
@@ -821,18 +821,18 @@ class Aggregator:
         ):
             self._end_round_due_to_stragglers()
 
-    def _end_round_due_to_stragglers(self):
-        # determine stragglers
-        self.stragglers = [
-            collab_name for collab_name in self.assigner.get_assigned_collaborators()
-            if collab_name not in self.collaborators_done
-        ]
-        if len(self.stragglers) != 0:
-            self.logger.warning(
-                f"Identified straggler collaborators: {self.stragglers}"
-            )
-        # end the round
-        self._end_of_round_check()
+    def _end_round_due_to_stragglers(self, round_number=None):
+        with self.end_of_round_check_lock:
+            # determine stragglers
+            self.stragglers = [
+                collab_name for collab_name in self.assigner.get_assigned_collaborators()
+                if collab_name not in self.collaborators_done
+            ]
+            if len(self.stragglers) != 0:
+                self.logger.warning(
+                    f"Identified straggler collaborators: {self.stragglers}"
+                )
+            return self._end_of_round_check(round_number=round_number)
 
     def _process_named_tensor(self, named_tensor, collaborator_name):
         """
@@ -1217,7 +1217,11 @@ class Aggregator:
         self.logger.info(f"Set straggler_cutoff_time to {self.straggler_handling_policy.straggler_cutoff_time}")
 
 
-    def _end_of_round_check(self):
+    def _end_of_round_check(self, round_number=None):
+        with self.end_of_round_check_lock:
+            return self.__end_of_round_check(round_number)
+
+    def __end_of_round_check(self, round_number=None):
         """
         Check if the round complete.
 
@@ -1231,11 +1235,13 @@ class Aggregator:
         Returns:
             None
         """
-        self.logger.info(f'End of round check called...')
-        with self.end_of_round_check_lock:
-            if self._end_of_round_check_done[self.round_number]:
-                return
-            self._end_of_round_check_done[self.round_number] = True
+        self.logger.info(f'End of round check called for round {round_number}...')
+        if round_number is not None and round_number != self.round_number:
+            self.logger.info(f'End of round check called for a round that is not the current round. Called for: {round_number} when round is actually {self.round_number}...')
+            return
+        if self._end_of_round_check_done[self.round_number]:
+            return
+        self._end_of_round_check_done[self.round_number] = True
         self.logger.info(f'Doing end of round...')
 
         self.logger.debug(f'Memory Report:\n{_get_memory_usage()}\n\n')

@@ -24,6 +24,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
         if minimum_reporting <= 0:
             raise ValueError(f"minimum_reporting cannot be {minimum_reporting}")
 
+        self.round_number = -1
         self.round_start_time = round_start_time
         self._set_cutoff_time(straggler_cutoff_time)
         self.minimum_reporting = minimum_reporting
@@ -35,7 +36,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
                 "is set to np.inf."
             )
 
-    def start_policy(self, callback: Callable) -> None:
+    def start_policy(self, callback: Callable, round_number) -> None:
         """
         Start time-based straggler handling policy for collaborator for
         a particular round.
@@ -47,6 +48,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
         Returns:
             None
         """
+        self.round_number = round_number
         # If straggler_cutoff_time is set to infinite or
         # if the timer already expired for the current round do not start
         # the timer again until next round.
@@ -76,7 +78,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
 
         # if new time has expired, run callback
         if self.__straggler_time_expired():
-            self.callback()
+            self.callback(self.round_number)
         # otherwise, set the new timer
         else:
             self.timer = threading.Timer(
