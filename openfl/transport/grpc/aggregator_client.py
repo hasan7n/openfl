@@ -364,7 +364,7 @@ class AggregatorGRPCClient:
             tags=tags,
             require_lossless=require_lossless,
         )
-        timeout = self.kwargs.get("GetAggregatedTensorTimeout", .001)
+        timeout = self.kwargs.get("GetAggregatedTensorTimeout", None)
         response = self.stub.GetAggregatedTensor(request, timeout=timeout)
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
