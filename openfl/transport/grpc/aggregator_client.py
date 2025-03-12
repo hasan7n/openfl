@@ -63,11 +63,11 @@ class RetryOnRpcErrorClientInterceptor(
             response = continuation(client_call_details, request_or_iterator)
 
             if isinstance(response, grpc.RpcError):
-
                 # If status code is not in retryable status codes
                 self.sleeping_policy.logger.info(
                         f"Response code: {response.code()}\nResponse debug error string: {response.debug_error_string()}\nResponse details: {response.details()}"
                 )
+                self.sleeping_policy.logger.info(f'retry statuses are: {self.status_for_retry}')
                 if (
                     self.status_for_retry
                     and response.code() not in self.status_for_retry
@@ -98,6 +98,15 @@ def _atomic_connection(func):
         self.disconnect()
         return response
 
+    return wrapper
+
+
+def _log_function(func):
+    def wrapper(self, *args, **kwargs):
+        self.logger.info(f"Calling {func.__name__}")
+        response = func(self, *args, **kwargs)
+        self.logger.info(f"Returned from {func.__name__}")
+        return response
     return wrapper
 
 
@@ -327,6 +336,7 @@ class AggregatorGRPCClient:
 
     @_atomic_connection
     @_resend_data_on_reconnection
+    @_log_function
     def get_tasks(self, collaborator_name):
         """Get tasks from the aggregator."""
         self._set_header(collaborator_name)
@@ -344,6 +354,7 @@ class AggregatorGRPCClient:
 
     @_atomic_connection
     @_resend_data_on_reconnection
+    @_log_function
     def get_aggregated_tensor(
         self,
         collaborator_name,
@@ -373,6 +384,7 @@ class AggregatorGRPCClient:
 
     @_atomic_connection
     @_resend_data_on_reconnection
+    @_log_function
     def send_local_task_results(
         self,
         collaborator_name,
@@ -400,6 +412,7 @@ class AggregatorGRPCClient:
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
+    @_log_function
     def _get_trained_model(self, experiment_name, model_type):
         """Get trained model RPC."""
         get_model_request = self.stub.GetTrainedModelRequest(
@@ -416,6 +429,7 @@ class AggregatorGRPCClient:
     @_handle_grpc_error
     @_atomic_connection
     @_resend_data_on_reconnection
+    @_log_function
     def connectivity_check(self, collaborator_name):
         """Check if collaborator can connect to the aggregator."""
         self._set_header(collaborator_name)
