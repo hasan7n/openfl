@@ -201,26 +201,29 @@ class AggregatorGRPCClient:
         self.federation_uuid = federation_uuid
         self.single_col_cert_common_name = single_col_cert_common_name
 
-        if for_admin:
-            self.interceptors = ()
-            self.stub = aggregator_pb2_grpc.AggregatorStub(self.channel)
-        else:
-            # Adding an interceptor for RPC Errors
-            self.interceptors = (
-                RetryOnRpcErrorClientInterceptor(
-                    sleeping_policy=ConstantBackoff(
-                        logger=self.logger,
-                        reconnect_interval=int(
-                            kwargs.get("client_reconnect_interval", 1)
-                        ),
-                        uri=self.uri,
-                    ),
-                    status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
-                ),
-            )
-            self.stub = aggregator_pb2_grpc.AggregatorStub(
-                grpc.intercept_channel(self.channel, *self.interceptors)
-            )
+        # MSHELLER NOTE: removed interceptors to allow recovery via reconnection wrapper
+        self.interceptors = ()
+        self.stub = aggregator_pb2_grpc.AggregatorStub(self.channel)
+        # if for_admin:
+        #     self.interceptors = ()
+        #     self.stub = aggregator_pb2_grpc.AggregatorStub(self.channel)
+        # else:
+        #     # Adding an interceptor for RPC Errors
+        #     self.interceptors = (
+        #         RetryOnRpcErrorClientInterceptor(
+        #             sleeping_policy=ConstantBackoff(
+        #                 logger=self.logger,
+        #                 reconnect_interval=int(
+        #                     kwargs.get("client_reconnect_interval", 1)
+        #                 ),
+        #                 uri=self.uri,
+        #             ),
+        #             status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
+        #         ),
+        #     )
+        #     self.stub = aggregator_pb2_grpc.AggregatorStub(
+        #         grpc.intercept_channel(self.channel, *self.interceptors)
+        #     )
         self.kwargs = kwargs
 
     def create_insecure_channel(self, uri):
@@ -331,7 +334,9 @@ class AggregatorGRPCClient:
         self.logger.debug(f"Connecting to gRPC at {self.uri}")
 
         self.stub = aggregator_pb2_grpc.AggregatorStub(
-            grpc.intercept_channel(self.channel, *self.interceptors)
+            grpc.intercept_channel(self.channel)
+            # MSHELLER NOTE: removing interceptor in order to recover from the UNAVAILABLE error
+            # grpc.intercept_channel(self.channel, *self.interceptors)
         )
 
     @_atomic_connection
