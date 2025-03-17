@@ -56,3 +56,15 @@ class StragglerHandlingPolicy(ABC):
             bool
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def get_round_number(
+        self
+    ) -> int:
+        """
+        Returns the round number that the policy believes it currently is
+
+        Returns:
+            int
+        """
+        raise NotImplementedError

@@ -505,7 +505,7 @@ class Aggregator:
 
         return tasks, self.round_number, sleep_time, time_to_quit
 
-    def _straggler_cutoff_time_elapsed(self, round_number=None) -> None:
+    def _straggler_cutoff_time_elapsed(self) -> None:
         """
         This method is called by the straggler handling policy when cutoff timer is elapsed.
         It applies straggler handling policy and ends the round early.
@@ -525,7 +525,7 @@ class Aggregator:
         if self.straggler_handling_policy.straggler_cutoff_check(
             len(self.collaborators_done), len(self.assigner.get_assigned_collaborators())
         ):
-            self._end_round_due_to_stragglers(round_number=round_number)
+            self._end_round_due_to_stragglers()
 
     def get_aggregated_tensor(self, collaborator_name, tensor_name,
                               round_number, report, tags, require_lossless):
@@ -822,8 +822,12 @@ class Aggregator:
         ):
             self._end_round_due_to_stragglers()
 
-    def _end_round_due_to_stragglers(self, round_number=None):
+    def _end_round_due_to_stragglers(self):
         with self.end_of_round_check_lock:
+            # MICAH BEGIN: check to make sure that the policy and aggregator rounds agree
+            if self.round_number != self.straggler_handling_policy.get_round_number():
+                self.logger.info(f"Aborting straggler handler cuttoff due to round mismatch with aggregator. This prevents a bug due to a race condition. All should be well.")
+                return
             # determine stragglers
             self.stragglers = [
                 collab_name for collab_name in self.assigner.get_assigned_collaborators()
@@ -833,7 +837,7 @@ class Aggregator:
                 self.logger.warning(
                     f"Identified straggler collaborators: {self.stragglers}"
                 )
-            return self._end_of_round_check(round_number=round_number)
+            return self._end_of_round_check()
 
     def _process_named_tensor(self, named_tensor, collaborator_name):
         """
@@ -1214,15 +1218,15 @@ class Aggregator:
             self.logger.info(f'Aggregator straggler_handling_policy has no method for set_straggler_cutoff_time. Skipping call')
             return
 
-        self.straggler_handling_policy.set_straggler_cutoff_time(straggler_cutoff_time)
+        self.straggler_handling_policy.set_straggler_cutoff_time(straggler_cutoff_time, self.round_number)
         self.logger.info(f"Set straggler_cutoff_time to {self.straggler_handling_policy.straggler_cutoff_time}")
 
 
-    def _end_of_round_check(self, round_number=None):
+    def _end_of_round_check(self):
         with self.end_of_round_check_lock:
-            return self.__end_of_round_check(round_number)
+            return self.__end_of_round_check()
 
-    def __end_of_round_check(self, round_number=None):
+    def __end_of_round_check(self):
         """
         Check if the round complete.
 
@@ -1236,10 +1240,7 @@ class Aggregator:
         Returns:
             None
         """
-        self.logger.info(f'End of round check called for round {round_number}...')
-        if round_number is not None and round_number != self.round_number:
-            self.logger.info(f'End of round check called for a round that is not the current round. Called for: {round_number} when round is actually {self.round_number}...')
-            return
+        self.logger.info(f'End of round check called for round {self.round_number}...')
         if self._end_of_round_check_done[self.round_number]:
             return
         self._end_of_round_check_done[self.round_number] = True

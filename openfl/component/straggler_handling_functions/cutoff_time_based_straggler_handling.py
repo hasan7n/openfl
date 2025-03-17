@@ -78,7 +78,7 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
 
         # if new time has expired, run callback
         if self.__straggler_time_expired():
-            self.callback(self.round_number)
+            self.callback()
         # otherwise, set the new timer
         else:
             self.timer = threading.Timer(
@@ -134,6 +134,18 @@ class CutoffTimeBasedStragglerHandling(StragglerHandlingPolicy):
             else:
                 self.logger.info(f"Minimum of {self.minimum_reporting} NOT met. Round should NOT end.")
                 return False
+
+    def get_round_number(
+        self
+    ) -> int:
+        """
+        Returns the round number that the policy believes it currently is
+
+        Returns:
+            int
+        """
+        return self.round_number
+
 
     def __straggler_time_expired(self) -> bool:
         """
