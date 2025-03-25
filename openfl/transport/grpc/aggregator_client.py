@@ -445,6 +445,7 @@ class AggregatorGRPCClient:
         self.validate_response(response, collaborator_name)
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_add_collaborator(self, admin_name, col_label, col_cn):
         """Add collaborator RPC."""
@@ -458,6 +459,7 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_remove_collaborator(self, admin_name, col_label, col_cn):
         """Remove collaborator RPC."""
@@ -471,6 +473,7 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_get_experiment_status(self, admin_name):
         """Get experiment status RPC."""
@@ -488,6 +491,7 @@ class AggregatorGRPCClient:
         return status_dict
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_set_straggler_cutoff_time(self, admin_name, timeout_in_seconds):
         """SetStragglerCuttoffTime RPC."""
@@ -499,6 +503,7 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_get_dynamic_task_arg(self, admin_name, task_name, arg_name):
         """GetDynamicTaskArg RPC."""
@@ -513,6 +518,7 @@ class AggregatorGRPCClient:
         return response.current_value, response.next_value
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_set_dynamic_task_arg(self, admin_name, task_name, arg_name, value):
         """SetDynamicTaskArg RPC."""
