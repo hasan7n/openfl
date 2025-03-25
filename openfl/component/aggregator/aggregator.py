@@ -1218,7 +1218,7 @@ class Aggregator:
             self.logger.info(f'Aggregator straggler_handling_policy has no method for set_straggler_cutoff_time. Skipping call')
             return
 
-        self.straggler_handling_policy.set_straggler_cutoff_time(straggler_cutoff_time, self.round_number)
+        self.straggler_handling_policy.set_straggler_cutoff_time(straggler_cutoff_time)
         self.logger.info(f"Set straggler_cutoff_time to {self.straggler_handling_policy.straggler_cutoff_time}")
 
 
