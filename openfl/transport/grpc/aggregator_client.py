@@ -141,11 +141,6 @@ def _resend_data_on_reconnection(func):
                 elif e.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
                     self.logger.info("Resending data after 10 seconds")
                     time.sleep(10)
-                elif e.code() == grpc.StatusCode.UNAVAILABLE:
-                    self.logger.info("Disconnecting then reconnecting since unavailable")
-                    self.disconnect()
-                    time.sleep(1)
-                    self.reconnect()
                 self.logger.info(f'Sent request, got {e.code()}')
                 continue
             break
@@ -339,8 +334,8 @@ class AggregatorGRPCClient:
             # grpc.intercept_channel(self.channel, *self.interceptors)
         )
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
     @_log_function
     def get_tasks(self, collaborator_name):
         """Get tasks from the aggregator."""
@@ -357,8 +352,8 @@ class AggregatorGRPCClient:
             response.quit,
         )
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
     @_log_function
     def get_aggregated_tensor(
         self,
@@ -387,8 +382,8 @@ class AggregatorGRPCClient:
 
         return response.tensor
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
     @_log_function
     def send_local_task_results(
         self,
@@ -417,6 +412,8 @@ class AggregatorGRPCClient:
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
+    @_resend_data_on_reconnection
+    @_atomic_connection
     @_log_function
     def _get_trained_model(self, experiment_name, model_type):
         """Get trained model RPC."""
