@@ -430,17 +430,20 @@ class AggregatorGRPCClient:
 
     @_handle_grpc_error
     @_atomic_connection
-    @_resend_data_on_reconnection
     @_log_function
     def connectivity_check(self, collaborator_name):
         """Check if collaborator can connect to the aggregator."""
         self._set_header(collaborator_name)
-
         request = aggregator_pb2.ConnectivityCheckRequest(header=self.header)
-        response = self.stub.ConnectivityCheck(request)
-        # also do other validation, like on the round_number
-        self.validate_response(response, collaborator_name)
-
+        try:
+                response = self.stub.ConnectivityCheck(request)
+                self.validate_response(response, collaborator_name)
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
+                self.logger.info("Connectivity confirmed by receipt of 'resource exhausted' response.")    
+            else:
+                raise
+        
     @_handle_grpc_error
     @_resend_data_on_reconnection
     @_atomic_connection  # HK-TODO: remove this wrapper?
