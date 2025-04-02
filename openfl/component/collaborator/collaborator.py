@@ -6,6 +6,7 @@
 from enum import Enum
 from logging import getLogger
 from time import sleep
+from time import time
 from typing import Tuple
 
 from openfl.databases import TensorDB
@@ -129,6 +130,9 @@ class Collaborator:
 
         # MICAH CHANGE:
         self.dynamictaskargs = dynamictaskargs
+
+        # BRANDON CHANGE:
+        self.get_aggregated_tensor_timeout = 10
 
         self.client = client
 
@@ -261,12 +265,19 @@ class Collaborator:
                 tk = tensorkey_for_dynamic_task_arg(task_name, arg_name, round_number, self.aggregator_uuid)
                 dynamicarg_tensor_keys.append(tk)
         required_tensorkeys.extend(dynamicarg_tensor_keys)
+        # BRANDON CHANGE:
+        before_get_tensors = int(time())
 
         # print('Required tensorkeys = {}'.format(
         # [tk[0] for tk in required_tensorkeys]))
         input_tensor_dict = self.get_numpy_dict_for_tensorkeys(
             required_tensorkeys
         )
+
+        # BRANDON CHANGE:
+        after_get_tensors = int(time())
+        elapsed_time = after_get_tensors - before_get_tensors
+        self.logger.info(f"For task {task_name} it took {elapsed_time} seconds")
 
         # now we have whatever the model needs to do the task
         if hasattr(self.task_runner, 'TASK_REGISTRY'):
@@ -424,8 +435,9 @@ class Collaborator:
         tensor_name, origin, round_number, report, tags = tensor_key
 
         self.logger.debug(f'Requesting aggregated tensor {tensor_key}')
+        # BRANDON CHANGE:
         tensor = self.client.get_aggregated_tensor(
-            self.collaborator_name, tensor_name, round_number, report, tags, require_lossless)
+            self.collaborator_name, tensor_name, round_number, report, tags, require_lossless, timeout=self.get_aggregated_tensor_timeout)
 
         # this translates to a numpy array and includes decompression, as
         # necessary
