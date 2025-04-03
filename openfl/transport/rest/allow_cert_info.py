@@ -1,5 +1,6 @@
 from uvicorn.protocols.http.httptools_impl import HttpToolsProtocol
 
+# TODO: rename and mention "HACK"
 old_on_url = HttpToolsProtocol.on_url
 
 
