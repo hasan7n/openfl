@@ -168,6 +168,7 @@ setup(
         'tensorboard',
         'tensorboardX<=2.6',
         'tqdm',
+        'fastapi[standard]'
     ],
     setup_requires=['grpcio-tools>=1.56.2,<1.65.0'],
     python_requires='>=3.8, <3.12',
