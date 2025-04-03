@@ -168,11 +168,27 @@ class Collaborator:
 
     def run(self):
         """Run the collaborator."""
+        # BRANDON CHANGES throughout this entire function: 
+        """
+        Time that the collaborator was idol in the round (after tasks completed) is approximated 
+        by adding the sleeps after finishing tasks (TODO: corner cases making this a bad approximation?)   
+
+        """
+        # initialization (TODO: will this cause an error?)
+        wait_start = None
+
         while True:
             tasks, round_number, sleep_time, time_to_quit = self.get_tasks()
+
             if time_to_quit:
                 break
             elif sleep_time > 0:
+                # avoid case of collaborator restart, having alrady completed the round work
+                if wait_start is not None:
+                    # wait end is at the beginning of the last sleep (sleeps before will set self.get_aggregated_tensor_timeout but not use it)
+                    # we have a parameter here scaling down the wait time to become a timeout value
+                    wait_to_timeout_scale = 0.03
+                    self.get_aggregated_tensor_timeout = int((time() - wait_start) * wait_to_timeout_scale)
                 sleep(sleep_time)  # some sleep function
             else:
                 self.logger.info(f'Received the following tasks: {tasks}')
@@ -181,6 +197,8 @@ class Collaborator:
 
                 # Cleaning tensor db
                 self.tensor_db.clean_up(self.db_store_rounds)
+                # value below is false if aggregator rejected results submitted above as stale, but this code will run again before any sleep if so
+                wait_start = time()
 
         self.logger.info('End of Federation reached. Exiting...')
 
@@ -437,7 +455,7 @@ class Collaborator:
         self.logger.debug(f'Requesting aggregated tensor {tensor_key}')
         # BRANDON CHANGE:
         tensor = self.client.get_aggregated_tensor(
-            self.collaborator_name, tensor_name, round_number, report, tags, require_lossless, timeout=self.get_aggregated_tensor_timeout)
+            self.collaborator_name, tensor_name, round_number, report, tags, require_lossless, wrapper_timeout=self.get_aggregated_tensor_timeout)
 
         # this translates to a numpy array and includes decompression, as
         # necessary

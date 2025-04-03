@@ -123,7 +123,7 @@ def _handle_grpc_error(func):
 
 
 def _resend_data_on_reconnection(func):
-    def wrapper(self, *args, timeout=10, **kwargs):
+    def wrapper(self, *args, wrapper_timeout=5, **kwargs):
         while True:
             try:
                 response = func(self, *args, **kwargs)
@@ -139,8 +139,8 @@ def _resend_data_on_reconnection(func):
                         ]:
                     raise
                 elif e.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
-                    self.logger.info(f"Resending data after {timeout} seconds")
-                    time.sleep(timeout)
+                    self.logger.info(f"Resending data after {wrapper_timeout} seconds")
+                    time.sleep(wrapper_timeout)
                 self.logger.info(f'Sent request, got {e.code()}')
                 continue
             break
