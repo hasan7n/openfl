@@ -47,7 +47,8 @@ def _retry_on_httpx_error(func):
             except httpx.RemoteProtocolError as error:
                 self.logger.info(f"Retrying {func.__name__} due to error: {error}")
                 sleep(1)
-                
+                continue
+            break
         return response
 
     return wrapper
