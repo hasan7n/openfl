@@ -32,7 +32,7 @@ def _handle_REST_API_error(func):
         try:
             response = func(self, *args, **kwargs)
         except Exception as error:
-            self.logger.info(f"REST API Error: {error}}")
+            self.logger.info(f"REST API Error: {error}")
             exit(1)
         return response
 
