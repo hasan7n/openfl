@@ -133,6 +133,7 @@ setup(
         'openfl.protocols',
         'openfl.transport',
         'openfl.transport.grpc',
+        'openfl.transport.rest',
         'openfl.utilities',
         'openfl.utilities.ca',
         'openfl.utilities.data_splitters',
