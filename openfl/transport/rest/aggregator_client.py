@@ -19,17 +19,21 @@ from openfl.utilities import (
 
 def _atomic_connection(func):
     def wrapper(self, *args, **kwargs):
-        # self.reconnect()
+        self.reconnect()
         response = func(self, *args, **kwargs)
-        # self.disconnect()
+        self.disconnect()
         return response
 
     return wrapper
 
 
-def _handle_grpc_error(func):
+def _handle_REST_API_error(func):
     def wrapper(self, *args, **kwargs):
-        response = func(self, *args, **kwargs)
+        try:
+            response = func(self, *args, **kwargs)
+        except Exception as error:
+            self.logger.info(f"REST API Error: {error}}")
+            exit(1)
         return response
 
     return wrapper
@@ -191,8 +195,8 @@ class AggregatorRESTClient:
 
         self.logger.debug(f"Connecting to gRPC at {self.uri}")
 
+    @_handle_REST_API_error
     @_atomic_connection
-    @_resend_data_on_reconnection
     def get_tasks(self, collaborator_name):
         """Get tasks from the aggregator."""
         self._set_header(collaborator_name)
@@ -213,8 +217,8 @@ class AggregatorRESTClient:
             response.quit,
         )
 
+    @_handle_REST_API_error
     @_atomic_connection
-    @_resend_data_on_reconnection
     def get_aggregated_tensor(
         self,
         collaborator_name,
@@ -252,8 +256,8 @@ class AggregatorRESTClient:
 
         return response.tensor
 
+    @_handle_REST_API_error
     @_atomic_connection
-    @_resend_data_on_reconnection
     def send_local_task_results(
         self,
         collaborator_name,
@@ -288,7 +292,7 @@ class AggregatorRESTClient:
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
-    @_handle_grpc_error
+    @_handle_REST_API_error
     @_atomic_connection
     def connectivity_check(self, collaborator_name):
         """Check if collaborator can connect to the aggregator."""
@@ -302,7 +306,7 @@ class AggregatorRESTClient:
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
-    @_handle_grpc_error
+    @_handle_REST_API_error
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_add_collaborator(self, admin_name, col_label, col_cn):
         """Add collaborator RPC."""
@@ -318,7 +322,7 @@ class AggregatorRESTClient:
         response = aggregator_pb2.AddCollaboratorResponse(**response.json())
         self.validate_response(response, admin_name)
 
-    @_handle_grpc_error
+    @_handle_REST_API_error
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_remove_collaborator(self, admin_name, col_label, col_cn):
         """Remove collaborator RPC."""
@@ -334,7 +338,7 @@ class AggregatorRESTClient:
         response = aggregator_pb2.RemoveCollaboratorResponse(**response.json())
         self.validate_response(response, admin_name)
 
-    @_handle_grpc_error
+    @_handle_REST_API_error
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_get_experiment_status(self, admin_name):
         """Get experiment status RPC."""
@@ -349,7 +353,7 @@ class AggregatorRESTClient:
         status_dict = convert_experiment_status_proto_to_dict(response)
         return status_dict
 
-    @_handle_grpc_error
+    @_handle_REST_API_error
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_set_straggler_cutoff_time(self, admin_name, timeout_in_seconds):
         """SetStragglerCuttoffTime RPC."""
@@ -365,7 +369,7 @@ class AggregatorRESTClient:
         )
         self.validate_response(response, admin_name)
 
-    @_handle_grpc_error
+    @_handle_REST_API_error
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_get_dynamic_task_arg(self, admin_name, task_name, arg_name):
         """GetDynamicTaskArg RPC."""
@@ -380,7 +384,7 @@ class AggregatorRESTClient:
         self.validate_response(response, admin_name)
         return response.current_value, response.next_value
 
-    @_handle_grpc_error
+    @_handle_REST_API_error
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_set_dynamic_task_arg(
         self, admin_name, task_name, arg_name, value
