@@ -16,8 +16,8 @@ from openfl.interface.aggregation_functions import AggregationFunction
 from openfl.interface.aggregation_functions import WeightedAverage
 from openfl.component.assigner.custom_assigner import Assigner
 from openfl.interface.cli_helper import WORKSPACE
-from openfl.transport import AggregatorGRPCClient
-from openfl.transport import AggregatorGRPCServer
+from openfl.transport import AggregatorGRPCClient, AggregatorRESTClient
+from openfl.transport import AggregatorGRPCServer, AggregatorRESTServer
 from openfl.utilities.utils import getfqdn_env
 
 SETTINGS = 'settings'
@@ -562,6 +562,7 @@ class Plan:
             certificate = f'cert/client/col_{common_name}.crt'
             private_key = f'cert/client/col_{common_name}.key'
 
+        comms_framework = self.config['network'][SETTINGS].pop("framework", "grpc")
         client_args = self.config['network'][SETTINGS]
 
         # patch certificates
@@ -575,7 +576,10 @@ class Plan:
         client_args['for_admin'] = for_admin
 
         if self.client_ is None:
-            self.client_ = AggregatorGRPCClient(**client_args)
+            if comms_framework == "grpc":
+                self.client_ = AggregatorGRPCClient(**client_args)
+            else:
+                self.client_ = AggregatorRESTClient(**client_args)
 
         return self.client_
 
@@ -588,6 +592,7 @@ class Plan:
             certificate = f'cert/server/agg_{common_name}.crt'
             private_key = f'cert/server/agg_{common_name}.key'
 
+        comms_framework = self.config['network'][SETTINGS].pop("framework", "grpc")
         server_args = self.config['network'][SETTINGS]
 
         # patch certificates
@@ -600,7 +605,10 @@ class Plan:
         server_args['aggregator'] = self.get_aggregator()
 
         if self.server_ is None:
-            self.server_ = AggregatorGRPCServer(**server_args)
+            if comms_framework == "grpc":
+                self.server_ = AggregatorGRPCServer(**server_args)
+            else:
+                self.server_ = AggregatorRESTServer(**server_args)
 
         return self.server_
 

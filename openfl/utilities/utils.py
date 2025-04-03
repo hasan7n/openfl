@@ -199,6 +199,7 @@ def convert_experiment_status_proto_to_dict(response):
         ]
 
     def convert_collaborators_progress(collaborators):
+        # TODO: fix HasField
         return [
             {
                 "col_name": collaborator.col_name,
@@ -209,6 +210,7 @@ def convert_experiment_status_proto_to_dict(response):
 
     def convert_experiment_status(round_status):
         round_start = None
+        # TODO: fix HasField
         if round_status.HasField("round_start"):
             round_start = round_status.round_start
 
