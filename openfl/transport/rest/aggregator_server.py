@@ -189,7 +189,7 @@ class AggregatorRESTAPI:
             self.logger,
         )
 
-    def GetTasks(
+    async def GetTasks(
         self, request: aggregator_pb2.GetTasksRequest, context: Request
     ):  # NOQA:N802
         """
@@ -239,7 +239,7 @@ class AggregatorRESTAPI:
             quit=time_to_quit,
         )
 
-    def GetAggregatedTensor(
+    async def GetAggregatedTensor(
         self,
         request: aggregator_pb2.GetAggregatedTensorRequest,
         context: Request,
@@ -281,7 +281,7 @@ class AggregatorRESTAPI:
             tensor=named_tensor_pbuf_to_pydantic(named_tensor),
         )
 
-    def SendLocalTaskResults(
+    async def SendLocalTaskResults(
         self, proto: aggregator_pb2.TaskResults, context: Request
     ):  # NOQA:N802
         """
@@ -316,7 +316,7 @@ class AggregatorRESTAPI:
             header=self.get_header(collaborator_name)
         )
 
-    def ConnectivityCheck(
+    async def ConnectivityCheck(
         self, request: aggregator_pb2.ConnectivityCheckRequest, context: Request
     ):  # NOQA:N802
         """
