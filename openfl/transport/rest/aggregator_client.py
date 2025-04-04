@@ -5,6 +5,7 @@
 
 import ssl
 from logging import getLogger
+import time
 
 import httpx
 import base64
@@ -48,6 +49,13 @@ def _resend_data_on_reconnection(func):
             except httpx.ConnectError as e:
                 self.logger.info(f"Connection Error: {str(e)}. Retrying...")
                 self.reconnect()
+            except httpx.ReadError as e:
+                self.logger.info(f"Read Error: {str(e)}. Retrying...")
+                self.reconnect()
+            except RuntimeError as e:
+                self.logger.info(f"Runtime Error: {str(e)}. Retrying...")
+                time.sleep(1)
+
         return response
 
     return wrapper
@@ -213,6 +221,8 @@ class AggregatorRESTClient:
             json=request.model_dump(),
             timeout=timeout,
         )
+        if response.status_code != 200:
+            raise RuntimeError(f"{response.status_code} received")
         response = aggregator_pb2.GetTasksResponse(**response.json())
         self.validate_response(response, collaborator_name)
 
@@ -251,6 +261,8 @@ class AggregatorRESTClient:
             json=request.model_dump(),
             timeout=timeout,
         )
+        if response.status_code != 200:
+            raise RuntimeError(f"{response.status_code} received")
         response = aggregator_pb2.GetAggregatedTensorResponse(**response.json())
 
         # also do other validation, like on the round_number
@@ -292,14 +304,16 @@ class AggregatorRESTClient:
             json=request.model_dump(),
             timeout=timeout,
         )
+        if response.status_code != 200:
+            raise RuntimeError(f"{response.status_code} received")
         response = aggregator_pb2.SendLocalTaskResultsResponse(
             **response.json()
         )
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
-    @_handle_grpc_error
     @_atomic_connection
+    @_resend_data_on_reconnection
     def connectivity_check(self, collaborator_name):
         """Check if collaborator can connect to the aggregator."""
         self._set_header(collaborator_name)
@@ -308,6 +322,8 @@ class AggregatorRESTClient:
         response = self.channel.post(
             url=f"{self.uri}/ConnectivityCheck", json=request.model_dump()
         )
+        if response.status_code != 200:
+            raise RuntimeError(f"{response.status_code} received")
         response = aggregator_pb2.ConnectivityCheckResponse(**response.json())
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
