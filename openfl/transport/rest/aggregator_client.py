@@ -37,7 +37,17 @@ def _handle_grpc_error(func):
 
 def _resend_data_on_reconnection(func):
     def wrapper(self, *args, **kwargs):
-        response = func(self, *args, **kwargs)
+        # TODO: should handle status code in another way!
+        while True:
+            try:
+                response = func(self, *args, **kwargs)
+                break
+            except httpx.RemoteProtocolError as e:
+                self.logger.info(f"Protocol Error: {str(e)}. Retrying...")
+                self.reconnect()
+            except httpx.ConnectError as e:
+                self.logger.info(f"Connection Error: {str(e)}. Retrying...")
+                self.reconnect()
         return response
 
     return wrapper
