@@ -20,8 +20,16 @@ from openfl.utilities import check_equal
 from openfl.utilities import check_is_in
 
 from .grpc_channel_options import channel_options
+from threading import RLock
 
 logger = logging.getLogger(__name__)
+
+
+def with_lock(func):
+    def wrapper(self, *args, **kwargs):
+        with self.lock:
+            return func(self, *args, **kwargs)
+    return wrapper
 
 
 class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
@@ -63,6 +71,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.threads_multiplier = kwargs.pop("threads_multiplier", 1)
 
         self.logger = logging.getLogger(__name__)
+        self.lock = RLock()
 
     def validate_collaborator(self, request, context):
         """
@@ -183,6 +192,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         check_equal(
             request.header.federation_uuid, self.aggregator.federation_uuid, self.logger)
 
+    @with_lock
     def GetTasks(self, request, context):  # NOQA:N802
         """
         Request a job from aggregator.
@@ -228,6 +238,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             quit=time_to_quit
         )
 
+    @with_lock
     def GetAggregatedTensor(self, request, context):  # NOQA:N802
         """
         Request a job from aggregator.
@@ -261,6 +272,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             tensor=named_tensor
         )
 
+    @with_lock
     def SendLocalTaskResults(self, request, context):  # NOQA:N802
         """
         Request a model download from aggregator.
@@ -297,6 +309,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
             header=self.get_header(collaborator_name)
         )
 
+    @with_lock
     def ConnectivityCheck(self, request, context):  # NOQA:N802
         """
         Just connect to the aggregator, to check if there are connectivity issues.

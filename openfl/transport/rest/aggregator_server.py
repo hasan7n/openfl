@@ -12,6 +12,7 @@ from openfl.protocols import aggregator_models as aggregator_pb2
 from openfl.utilities import check_equal
 from openfl.utilities import check_is_in
 from .utils import named_tensor_pbuf_to_pydantic
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,7 @@ class AggregatorRESTAPI:
             )
 
         self.logger = logging.getLogger(__name__)
+        self.lock = asyncio.Lock()
 
     def validate_collaborator(self, request, context: Request):
         """
@@ -200,44 +202,45 @@ class AggregatorRESTAPI:
             context: The gRPC context
 
         """
-        self.validate_collaborator(request, context)
-        try:
-            self.check_request(request)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        collaborator_name = request.header.sender
-        tasks, round_number, sleep_time, time_to_quit = (
-            self.aggregator.get_tasks(request.header.sender)
-        )
-        if tasks:
-            if isinstance(tasks[0], str):
-                # backward compatibility
-                tasks_proto = [
-                    aggregator_pb2.Task(
-                        name=task,
-                    )
-                    for task in tasks
-                ]
+        async with self.lock:
+            self.validate_collaborator(request, context)
+            try:
+                self.check_request(request)
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
+            collaborator_name = request.header.sender
+            tasks, round_number, sleep_time, time_to_quit = (
+                self.aggregator.get_tasks(request.header.sender)
+            )
+            if tasks:
+                if isinstance(tasks[0], str):
+                    # backward compatibility
+                    tasks_proto = [
+                        aggregator_pb2.Task(
+                            name=task,
+                        )
+                        for task in tasks
+                    ]
+                else:
+                    tasks_proto = [
+                        aggregator_pb2.Task(
+                            name=task.name,
+                            function_name=task.function_name,
+                            task_type=task.task_type,
+                            apply_local=task.apply_local,
+                        )
+                        for task in tasks
+                    ]
             else:
-                tasks_proto = [
-                    aggregator_pb2.Task(
-                        name=task.name,
-                        function_name=task.function_name,
-                        task_type=task.task_type,
-                        apply_local=task.apply_local,
-                    )
-                    for task in tasks
-                ]
-        else:
-            tasks_proto = []
+                tasks_proto = []
 
-        return aggregator_pb2.GetTasksResponse(
-            header=self.get_header(collaborator_name),
-            round_number=round_number,
-            tasks=tasks_proto,
-            sleep_time=sleep_time,
-            quit=time_to_quit,
-        )
+            return aggregator_pb2.GetTasksResponse(
+                header=self.get_header(collaborator_name),
+                round_number=round_number,
+                tasks=tasks_proto,
+                sleep_time=sleep_time,
+                quit=time_to_quit,
+            )
 
     async def GetAggregatedTensor(
         self,
@@ -252,34 +255,35 @@ class AggregatorRESTAPI:
             context: The gRPC context
 
         """
-        self.validate_collaborator(request, context)
-        try:
-            self.check_request(request)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        collaborator_name = request.header.sender
-        tensor_name = request.tensor_name
-        require_lossless = request.require_lossless
-        round_number = request.round_number
-        report = request.report
-        tags = tuple(request.tags)
-        try:
-            named_tensor = self.aggregator.get_aggregated_tensor(
-                collaborator_name,
-                tensor_name,
-                round_number,
-                report,
-                tags,
-                require_lossless,
-            )
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        async with self.lock:
+            self.validate_collaborator(request, context)
+            try:
+                self.check_request(request)
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
+            collaborator_name = request.header.sender
+            tensor_name = request.tensor_name
+            require_lossless = request.require_lossless
+            round_number = request.round_number
+            report = request.report
+            tags = tuple(request.tags)
+            try:
+                named_tensor = self.aggregator.get_aggregated_tensor(
+                    collaborator_name,
+                    tensor_name,
+                    round_number,
+                    report,
+                    tags,
+                    require_lossless,
+                )
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
 
-        return aggregator_pb2.GetAggregatedTensorResponse(
-            header=self.get_header(collaborator_name),
-            round_number=round_number,
-            tensor=named_tensor_pbuf_to_pydantic(named_tensor),
-        )
+            return aggregator_pb2.GetAggregatedTensorResponse(
+                header=self.get_header(collaborator_name),
+                round_number=round_number,
+                tensor=named_tensor_pbuf_to_pydantic(named_tensor),
+            )
 
     async def SendLocalTaskResults(
         self, proto: aggregator_pb2.TaskResults, context: Request
@@ -292,29 +296,34 @@ class AggregatorRESTAPI:
             context: The gRPC context
 
         """
-        self.validate_collaborator(proto, context)
-        # all messages get sanity checked
-        try:
-            self.check_request(proto)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        async with self.lock:
+            self.validate_collaborator(proto, context)
+            # all messages get sanity checked
+            try:
+                self.check_request(proto)
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
 
-        collaborator_name = proto.header.sender
-        task_name = proto.task_name
-        round_number = proto.round_number
-        data_size = proto.data_size
-        named_tensors = proto.tensors
-        for i in range(len(named_tensors)):
-            named_tensors[i].data_bytes = base64.b64decode(
-                named_tensors[i].data_bytes.encode()
+            collaborator_name = proto.header.sender
+            task_name = proto.task_name
+            round_number = proto.round_number
+            data_size = proto.data_size
+            named_tensors = proto.tensors
+            for i in range(len(named_tensors)):
+                named_tensors[i].data_bytes = base64.b64decode(
+                    named_tensors[i].data_bytes.encode()
+                )
+            self.aggregator.send_local_task_results(
+                collaborator_name,
+                round_number,
+                task_name,
+                data_size,
+                named_tensors,
             )
-        self.aggregator.send_local_task_results(
-            collaborator_name, round_number, task_name, data_size, named_tensors
-        )
-        # turn data stream into local model update
-        return aggregator_pb2.SendLocalTaskResultsResponse(
-            header=self.get_header(collaborator_name)
-        )
+            # turn data stream into local model update
+            return aggregator_pb2.SendLocalTaskResultsResponse(
+                header=self.get_header(collaborator_name)
+            )
 
     async def ConnectivityCheck(
         self, request: aggregator_pb2.ConnectivityCheckRequest, context: Request
@@ -328,18 +337,19 @@ class AggregatorRESTAPI:
             context: The gRPC context
 
         """
-        self.validate_collaborator(request, context)
-        try:
-            self.check_request(request)
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
-        collaborator_name = request.header.sender
-        self.logger.info(
-            f"{collaborator_name} checked connectivity and succeeded."
-        )
-        return aggregator_pb2.ConnectivityCheckResponse(
-            header=self.get_header(collaborator_name)
-        )
+        async with self.lock:
+            self.validate_collaborator(request, context)
+            try:
+                self.check_request(request)
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
+            collaborator_name = request.header.sender
+            self.logger.info(
+                f"{collaborator_name} checked connectivity and succeeded."
+            )
+            return aggregator_pb2.ConnectivityCheckResponse(
+                header=self.get_header(collaborator_name)
+            )
 
     def AddCollaborator(
         self, request: aggregator_pb2.AddCollaboratorRequest, context: Request
