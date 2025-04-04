@@ -209,8 +209,8 @@ class AggregatorRESTClient:
 
         self.logger.debug(f"Connecting to gRPC at {self.uri}")
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
     def get_tasks(self, collaborator_name):
         """Get tasks from the aggregator."""
         self._set_header(collaborator_name)
@@ -233,8 +233,8 @@ class AggregatorRESTClient:
             response.quit,
         )
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
     def get_aggregated_tensor(
         self,
         collaborator_name,
@@ -274,8 +274,8 @@ class AggregatorRESTClient:
 
         return response.tensor
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
     def send_local_task_results(
         self,
         collaborator_name,
@@ -312,8 +312,8 @@ class AggregatorRESTClient:
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
     def connectivity_check(self, collaborator_name):
         """Check if collaborator can connect to the aggregator."""
         self._set_header(collaborator_name)
