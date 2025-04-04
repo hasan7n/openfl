@@ -43,19 +43,14 @@ def _resend_data_on_reconnection(func):
             try:
                 response = func(self, *args, **kwargs)
                 break
-            except httpx.RemoteProtocolError as e:
-                self.logger.info(f"Protocol Error: {str(e)}. Retrying...")
-                self.reconnect()
-            except httpx.ConnectError as e:
-                self.logger.info(f"Connection Error: {str(e)}. Retrying...")
-                self.reconnect()
-            except httpx.ReadError as e:
-                self.logger.info(f"Read Error: {str(e)}. Retrying...")
+            except httpx.HTTPError as e:
+                self.logger.info(f"HTTP Error: {str(e)}. Retrying...")
+                time.sleep(5)
                 self.reconnect()
             except RuntimeError as e:
                 self.logger.info(f"Runtime Error: {str(e)}. Retrying...")
-                time.sleep(1)
-
+                time.sleep(5)
+                self.reconnect()
         return response
 
     return wrapper
