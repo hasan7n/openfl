@@ -8,6 +8,7 @@ from logging import getLogger
 
 import httpx
 import base64
+from time import sleep
 
 from openfl.protocols import aggregator_models as aggregator_pb2
 from .utils import named_tensor_pbuf_to_pydantic
