@@ -241,7 +241,7 @@ class AggregatorRESTAPI:
 
     def GetAggregatedTensor(
         self,
-        request: aggregator_pb2.GetAggregatedTensorRequest,
+        request: aggregator_pb2.GetAggregatedTensorsRequest,
         context: Request,
     ):  # NOQA:N802
         """
@@ -257,28 +257,35 @@ class AggregatorRESTAPI:
             self.check_request(request)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
-        collaborator_name = request.header.sender
-        tensor_name = request.tensor_name
-        require_lossless = request.require_lossless
-        round_number = request.round_number
-        report = request.report
-        tags = tuple(request.tags)
-        try:
-            named_tensor = self.aggregator.get_aggregated_tensor(
-                collaborator_name,
-                tensor_name,
-                round_number,
-                report,
-                tags,
-                require_lossless,
-            )
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
 
-        return aggregator_pb2.GetAggregatedTensorResponse(
-            header=self.get_header(collaborator_name),
-            round_number=round_number,
-            tensor=named_tensor_pbuf_to_pydantic(named_tensor),
+        collaborator_name = request.header.sender
+
+        tensor_responses = []
+        for requested_tensor in request.requested_tensors:
+            tensor_name = requested_tensor.tensor_name
+            require_lossless = requested_tensor.require_lossless
+            round_number = requested_tensor.round_number
+            report = requested_tensor.report
+            tags = tuple(requested_tensor.tags)
+            try:
+                named_tensor = self.aggregator.get_aggregated_tensor(
+                    collaborator_name,
+                    tensor_name,
+                    round_number,
+                    report,
+                    tags,
+                    require_lossless,
+                )
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
+            tensor_response = aggregator_pb2.RequestedTensorResponse(
+                round_number=round_number,
+                tensor=named_tensor_pbuf_to_pydantic(named_tensor),
+            )
+            tensor_responses.append(tensor_response)
+
+        return aggregator_pb2.GetAggregatedTensorsResponse(
+            header=self.get_header(collaborator_name), tensors=tensor_responses
         )
 
     def SendLocalTaskResults(

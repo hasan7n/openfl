@@ -225,25 +225,29 @@ class AggregatorRESTClient:
 
     @_atomic_connection
     @_resend_data_on_reconnection
-    def get_aggregated_tensor(
-        self,
-        collaborator_name,
-        tensor_name,
-        round_number,
-        report,
-        tags,
-        require_lossless,
-    ):
+    def get_aggregated_tensor(self, collaborator_name, tensors):
         """Get aggregated tensor from the aggregator."""
         self._set_header(collaborator_name)
 
-        request = aggregator_pb2.GetAggregatedTensorRequest(
-            header=self.header,
-            tensor_name=tensor_name,
-            round_number=round_number,
-            report=report,
-            tags=tags,
-            require_lossless=require_lossless,
+        requested_tensors = []
+        for (
+            tensor_name,
+            round_number,
+            report,
+            tags,
+            require_lossless,
+        ) in tensors:
+            requested_tensor_model = aggregator_pb2.RequestedTensor(
+                tensor_name=tensor_name,
+                round_number=round_number,
+                report=report,
+                tags=tags,
+                require_lossless=require_lossless,
+            )
+            requested_tensors.append(requested_tensor_model)
+
+        request = aggregator_pb2.GetAggregatedTensorsRequest(
+            header=self.header, requested_tensors=requested_tensors
         )
         timeout = self.kwargs.get("GetAggregatedTensorTimeout", None)
         response = self.channel.post(
@@ -251,16 +255,19 @@ class AggregatorRESTClient:
             json=request.model_dump(),
             timeout=timeout,
         )
-        response = aggregator_pb2.GetAggregatedTensorResponse(**response.json())
+        response = aggregator_pb2.GetAggregatedTensorsResponse(
+            **response.json()
+        )
 
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
-        response.tensor.data_bytes = base64.b64decode(
-            response.tensor.data_bytes.encode()
-        )
+        for tensor_response in response.tensors:
+            tensor_response.tensor.data_bytes = base64.b64decode(
+                tensor_response.tensor.data_bytes.encode()
+            )
 
-        return response.tensor
+        return [tensor_response.tensor for tensor_response in response.tensors]
 
     @_atomic_connection
     @_resend_data_on_reconnection

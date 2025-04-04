@@ -315,7 +315,30 @@ class Collaborator:
 
     def get_numpy_dict_for_tensorkeys(self, tensor_keys):
         """Get tensor dictionary for specified tensorkey set."""
-        return {k.tensor_name: self.get_data_for_tensorkey(k) for k in tensor_keys}
+        tensor_keys_dict = {}
+        to_retrieve = {}
+        for k in tensor_keys:
+            nparray, found = self.get_data_for_tensorkey(k)
+            if not found:
+                to_retrieve[k.tensor_name] = nparray
+            else:
+                tensor_keys_dict[k.tensor_name] = nparray
+
+        received_tensors = self.get_aggregated_tensor_from_aggregator(to_retrieve)
+        for tensor_name, info in to_retrieve.items():
+            if "prior_model_layer" in info:
+                new_model_tk, nparray = self.tensor_codec.apply_delta(
+                    info["tensor_key"],
+                    received_tensors[tensor_name],
+                    info["prior_model_layer"],
+                    creates_model=True,
+                )
+                self.tensor_db.cache_tensor({new_model_tk: nparray})
+                tensor_keys_dict[tensor_name] = nparray
+            else:
+                tensor_keys_dict[tensor_name] = received_tensors[tensor_name]
+
+        return tensor_keys_dict
 
     def get_data_for_tensorkey(self, tensor_key):
         """
@@ -344,7 +367,7 @@ class Collaborator:
                     if nparray is not None:
                         self.logger.debug(f'Found tensor {tensor_name} in local TensorDB '
                                           f'for round {prior_round}')
-                        return nparray
+                        return nparray, True
                     prior_round -= 1
                 self.logger.info(
                     f'Cannot find any prior version of tensor {tensor_name} locally...'
@@ -367,37 +390,39 @@ class Collaborator:
                     tensor_dependencies[0]
                 )
                 if prior_model_layer is not None:
-                    uncompressed_delta = self.get_aggregated_tensor_from_aggregator(
-                        tensor_dependencies[1]
-                    )
-                    new_model_tk, nparray = self.tensor_codec.apply_delta(
-                        tensor_dependencies[1],
-                        uncompressed_delta,
-                        prior_model_layer,
-                        creates_model=True,
-                    )
-                    self.tensor_db.cache_tensor({new_model_tk: nparray})
+                    nparray = {
+                        "tensor_key": tensor_dependencies[1],
+                        "prior_model_layer": prior_model_layer,
+                        "require_lossless": False
+                    }
+
+                    found = False
+
                 else:
                     self.logger.info('Count not find previous model layer.'
                                      'Fetching latest layer from aggregator')
                     # The original model tensor should be fetched from client
-                    nparray = self.get_aggregated_tensor_from_aggregator(
-                        tensor_key,
-                        require_lossless=True
-                    )
+                    nparray = {"tensor_key": tensor_key, "require_lossless": True}
+                    found = False
+                    # nparray = self.get_aggregated_tensor_from_aggregator(
+                    #     tensor_key,
+                    #     require_lossless=True
+                    # )
             elif 'model' in tags or 'dynamictaskarg' in tags:
                 # Pulling the model for the first time
-                nparray = self.get_aggregated_tensor_from_aggregator(
-                    tensor_key,
-                    require_lossless=True
-                )
+                nparray = {"tensor_key": tensor_key, "require_lossless": True}
+                found = False
+                # nparray = self.get_aggregated_tensor_from_aggregator(
+                #     tensor_key,
+                #     require_lossless=True
+                # )
         else:
+            found = True
             self.logger.debug(f'Found tensor {tensor_key} in local TensorDB')
 
-        return nparray
+        return nparray, found
 
-    def get_aggregated_tensor_from_aggregator(self, tensor_key,
-                                              require_lossless=False):
+    def get_aggregated_tensor_from_aggregator(self, tensor_keys_dict):
         """
         Return the decompressed tensor associated with the requested tensor key.
 
@@ -421,20 +446,25 @@ class Collaborator:
         nparray     : The decompressed tensor associated with the requested
                       tensor key
         """
-        tensor_name, origin, round_number, report, tags = tensor_key
+        items = list(tensor_keys_dict.items())
+        get_aggregated_tensor_arg = []
+        for _, tensor_info in items:
+            tensor_name, origin, round_number, report, tags = tensor_info["tensor_key"]
+            require_lossless = tensor_info["require_lossless"]
+            get_aggregated_tensor_arg.append([tensor_name, round_number, report, tags, require_lossless])
 
-        self.logger.debug(f'Requesting aggregated tensor {tensor_key}')
-        tensor = self.client.get_aggregated_tensor(
-            self.collaborator_name, tensor_name, round_number, report, tags, require_lossless)
+        tensors = self.client.get_aggregated_tensor(self.collaborator_name, get_aggregated_tensor_arg)
 
-        # this translates to a numpy array and includes decompression, as
-        # necessary
-        nparray = self.named_tensor_to_nparray(tensor)
+        out_dict = {}
+        for i, (tensor_dict_key, tensor_info) in enumerate(items):
+            # this translates to a numpy array and includes decompression, as
+            # necessary
+            nparray = self.named_tensor_to_nparray(tensors[i])
+            # cache this tensor
+            self.tensor_db.cache_tensor({tensor_info["tensor_key"]: nparray})
+            out_dict[tensor_dict_key] = nparray
 
-        # cache this tensor
-        self.tensor_db.cache_tensor({tensor_key: nparray})
-
-        return nparray
+        return out_dict
 
     def send_task_results(self, tensor_dict, round_number, task_name):
         """Send task results to the aggregator."""

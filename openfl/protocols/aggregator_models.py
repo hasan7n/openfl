@@ -101,8 +101,7 @@ class GetTasksResponse(BaseModel):
     quit: bool
 
 
-class GetAggregatedTensorRequest(BaseModel):
-    header: MessageHeader
+class RequestedTensor(BaseModel):
     tensor_name: str
     round_number: int
     report: bool
@@ -110,10 +109,19 @@ class GetAggregatedTensorRequest(BaseModel):
     require_lossless: bool
 
 
-class GetAggregatedTensorResponse(BaseModel):
-    header: MessageHeader
+class RequestedTensorResponse(BaseModel):
     round_number: int
     tensor: NamedTensor
+
+
+class GetAggregatedTensorsRequest(BaseModel):
+    header: MessageHeader
+    requested_tensors: List[RequestedTensor]
+
+
+class GetAggregatedTensorsResponse(BaseModel):
+    header: MessageHeader
+    tensors: List[RequestedTensorResponse]
 
 
 class TaskResults(BaseModel):
