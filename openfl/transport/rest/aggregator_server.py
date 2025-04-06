@@ -1,6 +1,7 @@
 """AggregatorRESTServer module."""
 
 import base64
+import os
 from . import allow_cert_info  # noqa
 import uvicorn
 import logging
@@ -592,4 +593,8 @@ class AggregatorRESTServer:
             args["ssl_cert_reqs"] = ssl.CERT_REQUIRED
 
         self.logger.info("Starting Aggregator gRPC Server")
-        uvicorn.run(**args, log_level="trace", timeout_keep_alive=60)
+        uvicorn.run(
+            **args,
+            log_level=os.getenv("OPENFL_REST_LOGLEVEL", "info"),
+            timeout_keep_alive=60,
+        )
