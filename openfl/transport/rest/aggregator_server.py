@@ -592,4 +592,4 @@ class AggregatorRESTServer:
             args["ssl_cert_reqs"] = ssl.CERT_REQUIRED
 
         self.logger.info("Starting Aggregator gRPC Server")
-        uvicorn.run(**args)
+        uvicorn.run(**args, log_level="trace", timeout_keep_alive=60)
