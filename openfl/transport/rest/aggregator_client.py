@@ -147,13 +147,17 @@ class AggregatorRESTClient:
         Returns:
             An insecure gRPC channel object
         """
+        limits = httpx.Limits(
+            max_connections=1, max_keepalive_connections=1, keepalive_expiry=60
+        )
+
         ctx = ssl.create_default_context(cafile=root_certificate)
         if disable_client_auth:
             self.logger.warn("Client-side authentication is disabled.")
         else:
             ctx.load_cert_chain(certfile=certificate, keyfile=private_key)
 
-        return httpx.Client(verify=ctx)
+        return httpx.Client(verify=ctx, limits=limits)
 
     def _set_header(self, collaborator_name):
         self.header = aggregator_pb2.MessageHeader(
