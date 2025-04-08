@@ -6,7 +6,7 @@ from copy import deepcopy
 import time
 import queue
 from logging import getLogger
-from threading import Lock
+from threading import RLock
 
 from openfl.interface.aggregation_functions import WeightedAverage
 from openfl.component.straggler_handling_functions import CutoffTimeBasedStragglerHandling
@@ -185,7 +185,7 @@ class Aggregator:
         self.collaborators_to_remove = []
 
         # To prevent race condition in checking round end
-        self.end_of_round_check_lock = Lock()
+        self.end_of_round_check_lock = RLock()
 
     def _load_initial_tensors(self):
         """
@@ -481,7 +481,8 @@ class Aggregator:
         if not self.straggler_handling_policy_started_for_round:
             self.straggler_handling_policy_started_for_round = True
             self.straggler_handling_policy.start_policy(
-                callback=self._straggler_cutoff_time_elapsed
+                callback=self._straggler_cutoff_time_elapsed,
+                round_number=self.round_number
             )
             cutoff = None
             if hasattr(self.straggler_handling_policy, 'straggler_cutoff_time'):
@@ -822,17 +823,21 @@ class Aggregator:
             self._end_round_due_to_stragglers()
 
     def _end_round_due_to_stragglers(self):
-        # determine stragglers
-        self.stragglers = [
-            collab_name for collab_name in self.assigner.get_assigned_collaborators()
-            if collab_name not in self.collaborators_done
-        ]
-        if len(self.stragglers) != 0:
-            self.logger.warning(
-                f"Identified straggler collaborators: {self.stragglers}"
-            )
-        # end the round
-        self._end_of_round_check()
+        with self.end_of_round_check_lock:
+            # MICAH BEGIN: check to make sure that the policy and aggregator rounds agree
+            if self.round_number != self.straggler_handling_policy.get_round_number():
+                self.logger.info(f"Aborting straggler handler cuttoff due to round mismatch with aggregator. This prevents a bug due to a race condition. All should be well.")
+                return
+            # determine stragglers
+            self.stragglers = [
+                collab_name for collab_name in self.assigner.get_assigned_collaborators()
+                if collab_name not in self.collaborators_done
+            ]
+            if len(self.stragglers) != 0:
+                self.logger.warning(
+                    f"Identified straggler collaborators: {self.stragglers}"
+                )
+            return self._end_of_round_check()
 
     def _process_named_tensor(self, named_tensor, collaborator_name):
         """
@@ -1218,6 +1223,10 @@ class Aggregator:
 
 
     def _end_of_round_check(self):
+        with self.end_of_round_check_lock:
+            return self.__end_of_round_check()
+
+    def __end_of_round_check(self):
         """
         Check if the round complete.
 
@@ -1231,11 +1240,10 @@ class Aggregator:
         Returns:
             None
         """
-        self.logger.info(f'End of round check called...')
-        with self.end_of_round_check_lock:
-            if self._end_of_round_check_done[self.round_number]:
-                return
-            self._end_of_round_check_done[self.round_number] = True
+        self.logger.info(f'End of round check called for round {self.round_number}...')
+        if self._end_of_round_check_done[self.round_number]:
+            return
+        self._end_of_round_check_done[self.round_number] = True
         self.logger.info(f'Doing end of round...')
 
         self.logger.debug(f'Memory Report:\n{_get_memory_usage()}\n\n')

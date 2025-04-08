@@ -63,11 +63,11 @@ class RetryOnRpcErrorClientInterceptor(
             response = continuation(client_call_details, request_or_iterator)
 
             if isinstance(response, grpc.RpcError):
-
                 # If status code is not in retryable status codes
                 self.sleeping_policy.logger.info(
                         f"Response code: {response.code()}\nResponse debug error string: {response.debug_error_string()}\nResponse details: {response.details()}"
                 )
+                self.sleeping_policy.logger.info(f'retry statuses are: {self.status_for_retry}')
                 if (
                     self.status_for_retry
                     and response.code() not in self.status_for_retry
@@ -101,6 +101,15 @@ def _atomic_connection(func):
     return wrapper
 
 
+def _log_function(func):
+    def wrapper(self, *args, **kwargs):
+        self.logger.info(f"Calling {func.__name__}")
+        response = func(self, *args, **kwargs)
+        self.logger.info(f"Returned from {func.__name__}")
+        return response
+    return wrapper
+
+
 def _handle_grpc_error(func):
     def wrapper(self, *args, **kwargs):
         try:
@@ -129,6 +138,9 @@ def _resend_data_on_reconnection(func):
                         grpc.StatusCode.DEADLINE_EXCEEDED
                         ]:
                     raise
+                elif e.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
+                    self.logger.info("Resending data after 10 seconds")
+                    time.sleep(10)
                 self.logger.info(f'Sent request, got {e.code()}')
                 continue
             break
@@ -184,26 +196,29 @@ class AggregatorGRPCClient:
         self.federation_uuid = federation_uuid
         self.single_col_cert_common_name = single_col_cert_common_name
 
-        if for_admin:
-            self.interceptors = ()
-            self.stub = aggregator_pb2_grpc.AggregatorStub(self.channel)
-        else:
-            # Adding an interceptor for RPC Errors
-            self.interceptors = (
-                RetryOnRpcErrorClientInterceptor(
-                    sleeping_policy=ConstantBackoff(
-                        logger=self.logger,
-                        reconnect_interval=int(
-                            kwargs.get("client_reconnect_interval", 1)
-                        ),
-                        uri=self.uri,
-                    ),
-                    status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
-                ),
-            )
-            self.stub = aggregator_pb2_grpc.AggregatorStub(
-                grpc.intercept_channel(self.channel, *self.interceptors)
-            )
+        # MSHELLER NOTE: removed interceptors to allow recovery via reconnection wrapper
+        self.interceptors = ()
+        self.stub = aggregator_pb2_grpc.AggregatorStub(self.channel)
+        # if for_admin:
+        #     self.interceptors = ()
+        #     self.stub = aggregator_pb2_grpc.AggregatorStub(self.channel)
+        # else:
+        #     # Adding an interceptor for RPC Errors
+        #     self.interceptors = (
+        #         RetryOnRpcErrorClientInterceptor(
+        #             sleeping_policy=ConstantBackoff(
+        #                 logger=self.logger,
+        #                 reconnect_interval=int(
+        #                     kwargs.get("client_reconnect_interval", 1)
+        #                 ),
+        #                 uri=self.uri,
+        #             ),
+        #             status_for_retry=(grpc.StatusCode.UNAVAILABLE,),
+        #         ),
+        #     )
+        #     self.stub = aggregator_pb2_grpc.AggregatorStub(
+        #         grpc.intercept_channel(self.channel, *self.interceptors)
+        #     )
         self.kwargs = kwargs
 
     def create_insecure_channel(self, uri):
@@ -314,11 +329,14 @@ class AggregatorGRPCClient:
         self.logger.debug(f"Connecting to gRPC at {self.uri}")
 
         self.stub = aggregator_pb2_grpc.AggregatorStub(
-            grpc.intercept_channel(self.channel, *self.interceptors)
+            grpc.intercept_channel(self.channel)
+            # MSHELLER NOTE: removing interceptor in order to recover from the UNAVAILABLE error
+            # grpc.intercept_channel(self.channel, *self.interceptors)
         )
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
+    @_log_function
     def get_tasks(self, collaborator_name):
         """Get tasks from the aggregator."""
         self._set_header(collaborator_name)
@@ -334,8 +352,9 @@ class AggregatorGRPCClient:
             response.quit,
         )
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
+    @_log_function
     def get_aggregated_tensor(
         self,
         collaborator_name,
@@ -363,8 +382,9 @@ class AggregatorGRPCClient:
 
         return response.tensor
 
-    @_atomic_connection
     @_resend_data_on_reconnection
+    @_atomic_connection
+    @_log_function
     def send_local_task_results(
         self,
         collaborator_name,
@@ -392,6 +412,9 @@ class AggregatorGRPCClient:
         # also do other validation, like on the round_number
         self.validate_response(response, collaborator_name)
 
+    @_resend_data_on_reconnection
+    @_atomic_connection
+    @_log_function
     def _get_trained_model(self, experiment_name, model_type):
         """Get trained model RPC."""
         get_model_request = self.stub.GetTrainedModelRequest(
@@ -407,16 +430,22 @@ class AggregatorGRPCClient:
 
     @_handle_grpc_error
     @_atomic_connection
+    @_log_function
     def connectivity_check(self, collaborator_name):
         """Check if collaborator can connect to the aggregator."""
         self._set_header(collaborator_name)
-
         request = aggregator_pb2.ConnectivityCheckRequest(header=self.header)
-        response = self.stub.ConnectivityCheck(request)
-        # also do other validation, like on the round_number
-        self.validate_response(response, collaborator_name)
-
+        try:
+                response = self.stub.ConnectivityCheck(request)
+                self.validate_response(response, collaborator_name)
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.RESOURCE_EXHAUSTED:
+                self.logger.info("Connectivity confirmed by receipt of 'resource exhausted' response.")    
+            else:
+                raise
+        
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_add_collaborator(self, admin_name, col_label, col_cn):
         """Add collaborator RPC."""
@@ -430,6 +459,7 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_remove_collaborator(self, admin_name, col_label, col_cn):
         """Remove collaborator RPC."""
@@ -443,6 +473,7 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # HK-TODO: remove this wrapper?
     def admin_get_experiment_status(self, admin_name):
         """Get experiment status RPC."""
@@ -460,6 +491,7 @@ class AggregatorGRPCClient:
         return status_dict
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_set_straggler_cutoff_time(self, admin_name, timeout_in_seconds):
         """SetStragglerCuttoffTime RPC."""
@@ -471,6 +503,7 @@ class AggregatorGRPCClient:
         self.validate_response(response, admin_name)
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_get_dynamic_task_arg(self, admin_name, task_name, arg_name):
         """GetDynamicTaskArg RPC."""
@@ -485,6 +518,7 @@ class AggregatorGRPCClient:
         return response.current_value, response.next_value
 
     @_handle_grpc_error
+    @_resend_data_on_reconnection
     @_atomic_connection  # MS-TODO: remove this wrapper?
     def admin_set_dynamic_task_arg(self, admin_name, task_name, arg_name, value):
         """SetDynamicTaskArg RPC."""

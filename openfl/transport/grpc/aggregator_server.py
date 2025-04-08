@@ -61,6 +61,7 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
         self.server = None
         self.server_credentials = None
         self.threads_multiplier = kwargs.pop("threads_multiplier", 1)
+        self.max_concurrency = kwargs.pop("max_concurrency", 1)
 
         self.logger = logging.getLogger(__name__)
 
@@ -474,9 +475,12 @@ class AggregatorGRPCServer(aggregator_pb2_grpc.AggregatorServicer):
 
     def get_server(self):
         """Return gRPC server."""
-        max_workers = int(cpu_count()*self.threads_multiplier)
+        # max_workers = int(cpu_count()*self.threads_multiplier)
+        max_workers = 1
+        self.logger.info("Starting server with {max_workers} workers and {self.max_concurrency} concurrency limit.")
         self.server = server(ThreadPoolExecutor(max_workers=max_workers),
-                             options=channel_options)
+                             options=channel_options,
+                             maximum_concurrent_rpcs=self.max_concurrency)
 
         aggregator_pb2_grpc.add_AggregatorServicer_to_server(self, self.server)
 
