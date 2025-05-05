@@ -1300,8 +1300,8 @@ class Aggregator:
         self.metrics = []
 
         # Save the latest model
-        self.logger.info(f'Saving round {self.round_number} model...')
-        self._save_model(self.round_number, self.last_state_path)
+        self.logger.info(f'Saving round {self.round_number+1} model...')
+        self._save_model(self.round_number + 1, self.last_state_path)
 
         # TODO This needs to be fixed!
         if self._time_to_quit():
